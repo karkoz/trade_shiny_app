@@ -1,7 +1,7 @@
 # https://karkoz.shinyapps.io/trade_data/
 
 # shiny app for trade data 
-
+# runGitHub( "trade_shiny_app", "karkoz", ref = "main")
 # run gist runGist("c6873769798a690b4c9bba63f9320239")
 
 library(shiny)
@@ -29,7 +29,7 @@ library(readr)
 library(zoo)
 library(rdrop2)
 library(ShinyEditor)
-#Sys.setlocale("LC_TIME", "English")
+Sys.setlocale("LC_TIME", "English")
 
 # wd <- setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 # wd <- sub('\\/app.R$', "", wd)

@@ -1,6 +1,7 @@
 # https://karkoz.shinyapps.io/trade_data/
 
 # shiny app for trade data 
+# runGitHub( "trade_shiny_app", "karkoz")
 
 # run gist runGist("c6873769798a690b4c9bba63f9320239")
 library(remotes)

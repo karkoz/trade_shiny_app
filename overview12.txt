@@ -1,2 +1,2 @@
 <p>Here you can write down your conclusions on the chart.<strong> After double clicking on the save button the text is saved on the dropbox cloud. </strong></p>
-<p>Every time you run the app the saved file is loaded to text editor. File 1</p>
+<p>Every time you run the app the saved file is loaded to text editor. File 12</p>

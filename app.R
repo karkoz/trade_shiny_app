@@ -398,10 +398,10 @@ body <- dashboardBody(
               fluidRow(
                 column(
                   width = 9,
-                  editor(id = 'textcontent', text = ""),
+                  editor(id = 'textcontent1', text = ""),
                   br(),
                   actionButton(
-                    "generatehtml",
+                    "save1",
                     "Save",
                     icon = icon("edit")
                   )),
@@ -442,19 +442,34 @@ body <- dashboardBody(
                   plotly::plotlyOutput("correlation_plot"), width = 12)
             ),
             fluidRow(  # Setup
-              box(title = "Overview", status = "success", solidHeader = TRUE,
-                  p(textOutput("text1")), width = 9),
-              box(status = "info", solidHeader = TRUE,
-                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
-                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
-                              "<p style = 'font-size: 1.375rem;
+              use_editor("n2dsgmto6sikj8fwkxsua54ix0j18zcdpifat2lh2q4be3nv"),
+              
+              # Text Input 1
+              fluidRow(
+                column(
+                  width = 9,
+                  editor(id = 'textcontent2', text = ""),
+                  br(),
+                  actionButton(
+                    "save2",
+                    "Save",
+                    icon = icon("edit")
+                  )),
+                column(
+                  width = 3,
+                  box(status = "info", solidHeader = TRUE,
+                      HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                  "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                  "<p style = 'font-size: 1.375rem;
                                            font-weight: 400;
                                            color: #606060;
                                            font-family: Ubuntu,sans-serif;'>
                                 This project has received funding from the
                                 European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
                               </p>")), 
-                  width = 3))
+                      width = "100%")
+                )
+              ))
     ),
     
     tabItem(tabName = "plot2",
@@ -471,21 +486,35 @@ body <- dashboardBody(
                          plotOutput("top_10exporters_plot"), width = "100%")
               )
             ),
-            fluidRow(
-              box(title = "Overview", status = "success", solidHeader = TRUE,
-                  p(textOutput("text2")), width = 9),
-              box(status = "info", solidHeader = TRUE,
-                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
-                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
-                              "<p style = 'font-size: 1.375rem;
+            fluidRow(  # Setup
+              use_editor("n2dsgmto6sikj8fwkxsua54ix0j18zcdpifat2lh2q4be3nv"),
+              
+              # Text Input 1
+              fluidRow(
+                column(
+                  width = 9,
+                  editor(id = 'textcontent3', text = ""),
+                  br(),
+                  actionButton(
+                    "save3",
+                    "Save",
+                    icon = icon("edit")
+                  )),
+                column(
+                  width = 3,
+                  box(status = "info", solidHeader = TRUE,
+                      HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                  "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                  "<p style = 'font-size: 1.375rem;
                                            font-weight: 400;
                                            color: #606060;
                                            font-family: Ubuntu,sans-serif;'>
                                 This project has received funding from the
                                 European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
                               </p>")), 
-                  width = 3)
-            ),
+                      width = "100%")
+                )
+              ))
             
     ),
     
@@ -495,21 +524,35 @@ body <- dashboardBody(
                   leafletOutput("export_map_2016_2019"), width = 12
               )
             ),
-            fluidRow(
-              box(title = "Overview", status = "success", solidHeader = TRUE,
-                  p(textOutput("text3")), width = 9),
-              box(status = "info", solidHeader = TRUE,
-                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
-                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
-                              "<p style = 'font-size: 1.375rem;
+            fluidRow(  # Setup
+              use_editor("n2dsgmto6sikj8fwkxsua54ix0j18zcdpifat2lh2q4be3nv"),
+              
+              # Text Input 1
+              fluidRow(
+                column(
+                  width = 9,
+                  editor(id = 'textcontent4', text = ""),
+                  br(),
+                  actionButton(
+                    "save4",
+                    "Save",
+                    icon = icon("edit")
+                  )),
+                column(
+                  width = 3,
+                  box(status = "info", solidHeader = TRUE,
+                      HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                  "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                  "<p style = 'font-size: 1.375rem;
                                            font-weight: 400;
                                            color: #606060;
                                            font-family: Ubuntu,sans-serif;'>
                                 This project has received funding from the
                                 European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
                               </p>")), 
-                  width = 3)
-            )
+                      width = "100%")
+                )
+              ))
     ),
     
     tabItem(tabName = "plot4_1",
@@ -518,21 +561,35 @@ body <- dashboardBody(
                   plotOutput("seasonality"), width = 12
               )
             ),
-            fluidRow(
-              box(title = "Overview", status = "success", solidHeader = TRUE,
-                  p(textOutput("text4_1")), width = 9),
-              box(status = "info", solidHeader = TRUE,
-                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
-                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
-                              "<p style = 'font-size: 1.375rem;
+            fluidRow(  # Setup
+              use_editor("n2dsgmto6sikj8fwkxsua54ix0j18zcdpifat2lh2q4be3nv"),
+              
+              # Text Input 1
+              fluidRow(
+                column(
+                  width = 9,
+                  editor(id = 'textcontent5', text = ""),
+                  br(),
+                  actionButton(
+                    "save5",
+                    "Save",
+                    icon = icon("edit")
+                  )),
+                column(
+                  width = 3,
+                  box(status = "info", solidHeader = TRUE,
+                      HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                  "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                  "<p style = 'font-size: 1.375rem;
                                            font-weight: 400;
                                            color: #606060;
                                            font-family: Ubuntu,sans-serif;'>
                                 This project has received funding from the
                                 European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
                               </p>")), 
-                  width = 3)
-            )
+                      width = "100%")
+                )
+              ))
     ),
     
     tabItem(tabName = "plot4",
@@ -560,21 +617,35 @@ body <- dashboardBody(
                 selectInput("exporters2", "Choose a exporter:", ""), width = 6
               )
             ),
-            fluidRow(
-              box(title = "Overview", status = "success", solidHeader = TRUE,
-                  p(textOutput("text4")), width = 9),
-              box(status = "info", solidHeader = TRUE,
-                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
-                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
-                              "<p style = 'font-size: 1.375rem;
+            fluidRow(  # Setup
+              use_editor("n2dsgmto6sikj8fwkxsua54ix0j18zcdpifat2lh2q4be3nv"),
+              
+              # Text Input 1
+              fluidRow(
+                column(
+                  width = 9,
+                  editor(id = 'textcontent6', text = ""),
+                  br(),
+                  actionButton(
+                    "save6",
+                    "Save",
+                    icon = icon("edit")
+                  )),
+                column(
+                  width = 3,
+                  box(status = "info", solidHeader = TRUE,
+                      HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                  "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                  "<p style = 'font-size: 1.375rem;
                                            font-weight: 400;
                                            color: #606060;
                                            font-family: Ubuntu,sans-serif;'>
                                 This project has received funding from the
                                 European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
                               </p>")), 
-                  width = 3)  
-            )
+                      width = "100%")
+                )
+              ))
             
     ),
     tabItem(tabName = "plot5",
@@ -605,21 +676,35 @@ body <- dashboardBody(
                          plotOutput("import_by_regions"), width = "100%")
               )
             ),
-            fluidRow(
-              box(title = "Overview", status = "success", solidHeader = TRUE,
-                  p(textOutput("text5")), width = 9),
-              box(status = "info", solidHeader = TRUE,
-                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
-                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
-                              "<p style = 'font-size: 1.375rem;
+            fluidRow(  # Setup
+              use_editor("n2dsgmto6sikj8fwkxsua54ix0j18zcdpifat2lh2q4be3nv"),
+              
+              # Text Input 1
+              fluidRow(
+                column(
+                  width = 9,
+                  editor(id = 'textcontent7', text = ""),
+                  br(),
+                  actionButton(
+                    "save7",
+                    "Save",
+                    icon = icon("edit")
+                  )),
+                column(
+                  width = 3,
+                  box(status = "info", solidHeader = TRUE,
+                      HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                  "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                  "<p style = 'font-size: 1.375rem;
                                            font-weight: 400;
                                            color: #606060;
                                            font-family: Ubuntu,sans-serif;'>
                                 This project has received funding from the
                                 European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
                               </p>")), 
-                  width = 3)  
-            )
+                      width = "100%")
+                )
+              ))
     ),
     tabItem(tabName = "plot6",
             
@@ -639,21 +724,35 @@ body <- dashboardBody(
                          plotOutput("import_by_reg_seasonality"), width = "100%")
               )
             ),
-            fluidRow(
-              box(title = "Overview", status = "success", solidHeader = TRUE,
-                  p(textOutput("text6")), width = 9),
-              box(status = "info", solidHeader = TRUE,
-                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
-                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
-                              "<p style = 'font-size: 1.375rem;
+            fluidRow(  # Setup
+              use_editor("n2dsgmto6sikj8fwkxsua54ix0j18zcdpifat2lh2q4be3nv"),
+              
+              # Text Input 1
+              fluidRow(
+                column(
+                  width = 9,
+                  editor(id = 'textcontent8', text = ""),
+                  br(),
+                  actionButton(
+                    "save8",
+                    "Save",
+                    icon = icon("edit")
+                  )),
+                column(
+                  width = 3,
+                  box(status = "info", solidHeader = TRUE,
+                      HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                  "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                  "<p style = 'font-size: 1.375rem;
                                            font-weight: 400;
                                            color: #606060;
                                            font-family: Ubuntu,sans-serif;'>
                                 This project has received funding from the
                                 European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
                               </p>")), 
-                  width = 3)   
-            ),
+                      width = "100%")
+                )
+              ))
             
     ),
     tabItem(tabName = "plot7",
@@ -671,21 +770,35 @@ body <- dashboardBody(
                          plotOutput("top5exp"), width = "100%")
               )
             ),
-            fluidRow(
-              box(title = "Overview", status = "success", solidHeader = TRUE,
-                  p(textOutput("text7")), width = 9),
-              box(status = "info", solidHeader = TRUE,
-                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
-                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
-                              "<p style = 'font-size: 1.375rem;
+            fluidRow(  # Setup
+              use_editor("n2dsgmto6sikj8fwkxsua54ix0j18zcdpifat2lh2q4be3nv"),
+              
+              # Text Input 1
+              fluidRow(
+                column(
+                  width = 9,
+                  editor(id = 'textcontent9', text = ""),
+                  br(),
+                  actionButton(
+                    "save9",
+                    "Save",
+                    icon = icon("edit")
+                  )),
+                column(
+                  width = 3,
+                  box(status = "info", solidHeader = TRUE,
+                      HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                  "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                  "<p style = 'font-size: 1.375rem;
                                            font-weight: 400;
                                            color: #606060;
                                            font-family: Ubuntu,sans-serif;'>
                                 This project has received funding from the
                                 European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
                               </p>")), 
-                  width = 3)    
-            ),
+                      width = "100%")
+                )
+              ))
     ),
     tabItem(tabName = "plot8",
             
@@ -703,21 +816,35 @@ body <- dashboardBody(
                          width = "100%")
               )
             ),
-            fluidRow(
-              box(title = "Overview", status = "success", solidHeader = TRUE,
-                  p(textOutput("text8")), width = 9),
-              box(status = "info", solidHeader = TRUE,
-                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
-                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
-                              "<p style = 'font-size: 1.375rem;
+            fluidRow(  # Setup
+              use_editor("n2dsgmto6sikj8fwkxsua54ix0j18zcdpifat2lh2q4be3nv"),
+              
+              # Text Input 1
+              fluidRow(
+                column(
+                  width = 9,
+                  editor(id = 'textcontent10', text = ""),
+                  br(),
+                  actionButton(
+                    "save10",
+                    "Save",
+                    icon = icon("edit")
+                  )),
+                column(
+                  width = 3,
+                  box(status = "info", solidHeader = TRUE,
+                      HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                  "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                  "<p style = 'font-size: 1.375rem;
                                            font-weight: 400;
                                            color: #606060;
                                            font-family: Ubuntu,sans-serif;'>
                                 This project has received funding from the
                                 European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
                               </p>")), 
-                  width = 3)    
-            )
+                      width = "100%")
+                )
+              ))
             
     ),
     tabItem(tabName = "plot9",
@@ -736,21 +863,35 @@ body <- dashboardBody(
                          width = "100%")
               )
             ),
-            fluidRow(
-              box(title = "Overview", status = "success", solidHeader = TRUE,
-                  p(textOutput("text9")), width = 9),
-              box(status = "info", solidHeader = TRUE,
-                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
-                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
-                              "<p style = 'font-size: 1.375rem;
+            fluidRow(  # Setup
+              use_editor("n2dsgmto6sikj8fwkxsua54ix0j18zcdpifat2lh2q4be3nv"),
+              
+              # Text Input 1
+              fluidRow(
+                column(
+                  width = 9,
+                  editor(id = 'textcontent11', text = ""),
+                  br(),
+                  actionButton(
+                    "save11",
+                    "Save",
+                    icon = icon("edit")
+                  )),
+                column(
+                  width = 3,
+                  box(status = "info", solidHeader = TRUE,
+                      HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                  "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                  "<p style = 'font-size: 1.375rem;
                                            font-weight: 400;
                                            color: #606060;
                                            font-family: Ubuntu,sans-serif;'>
                                 This project has received funding from the
                                 European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
                               </p>")), 
-                  width = 3)     
-            )
+                      width = "100%")
+                )
+              ))
             
     ),
     tabItem(tabName = "plot10",
@@ -777,21 +918,35 @@ body <- dashboardBody(
                        width = "100%")
                 )
               ),
-              fluidRow(
-                box(title = "Overview", status = "success", solidHeader = TRUE,
-                    p(textOutput("text10")), width = 9),
-                box(status = "info", solidHeader = TRUE,
-                    HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
-                                "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
-                                "<p style = 'font-size: 1.375rem;
+              fluidRow(  # Setup
+                use_editor("n2dsgmto6sikj8fwkxsua54ix0j18zcdpifat2lh2q4be3nv"),
+                
+                # Text Input 1
+                fluidRow(
+                  column(
+                    width = 9,
+                    editor(id = 'textcontent12', text = ""),
+                    br(),
+                    actionButton(
+                      "save12",
+                      "Save",
+                      icon = icon("edit")
+                    )),
+                  column(
+                    width = 3,
+                    box(status = "info", solidHeader = TRUE,
+                        HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                    "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                    "<p style = 'font-size: 1.375rem;
                                            font-weight: 400;
                                            color: #606060;
                                            font-family: Ubuntu,sans-serif;'>
                                 This project has received funding from the
                                 European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
                               </p>")), 
-                    width = 3)    
-              ) 
+                        width = "100%")
+                  )
+                )) 
             )
             
     ),
@@ -805,21 +960,35 @@ body <- dashboardBody(
                                                 plotly::plotlyOutput("compare_product"), width = 12
                                             )
                                           ),
-                                          fluidRow(
-                                            box(title = "Overview", status = "success", solidHeader = TRUE,
-                                                p(textOutput("text11")), width = 9),
-                                            box(status = "info", solidHeader = TRUE,
-                                                HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
-                                                            "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
-                                                            "<p style = 'font-size: 1.375rem;
+                                          fluidRow(  # Setup
+                                            use_editor("n2dsgmto6sikj8fwkxsua54ix0j18zcdpifat2lh2q4be3nv"),
+                                            
+                                            # Text Input 1
+                                            fluidRow(
+                                              column(
+                                                width = 9,
+                                                editor(id = 'textcontent13', text = ""),
+                                                br(),
+                                                actionButton(
+                                                  "save13",
+                                                  "Save",
+                                                  icon = icon("edit")
+                                                )),
+                                              column(
+                                                width = 3,
+                                                box(status = "info", solidHeader = TRUE,
+                                                    HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                                                "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                                                "<p style = 'font-size: 1.375rem;
                                            font-weight: 400;
                                            color: #606060;
                                            font-family: Ubuntu,sans-serif;'>
                                 This project has received funding from the
                                 European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
                               </p>")), 
-                                                width = 3)  
-                                          )
+                                                    width = "100%")
+                                              )
+                                            ))
                                  ), 
                                  tabPanel("Tab 2", 
                                           fluidRow(
@@ -827,21 +996,35 @@ body <- dashboardBody(
                                                 plotly::plotlyOutput("compare_product_by_region"), width = 12
                                             )
                                           ),
-                                          fluidRow(
-                                            box(title = "Overview", status = "success", solidHeader = TRUE,
-                                                p(textOutput("text12")), width = 9),
-                                            box(status = "info", solidHeader = TRUE,
-                                                HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
-                                                            "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
-                                                            "<p style = 'font-size: 1.375rem;
+                                          fluidRow(  # Setup
+                                            use_editor("n2dsgmto6sikj8fwkxsua54ix0j18zcdpifat2lh2q4be3nv"),
+                                            
+                                            # Text Input 1
+                                            fluidRow(
+                                              column(
+                                                width = 9,
+                                                editor(id = 'textcontent14', text = ""),
+                                                br(),
+                                                actionButton(
+                                                  "save14",
+                                                  "Save",
+                                                  icon = icon("edit")
+                                                )),
+                                              column(
+                                                width = 3,
+                                                box(status = "info", solidHeader = TRUE,
+                                                    HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                                                "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                                                "<p style = 'font-size: 1.375rem;
                                            font-weight: 400;
                                            color: #606060;
                                            font-family: Ubuntu,sans-serif;'>
                                 This project has received funding from the
                                 European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
                               </p>")), 
-                                                width = 3)  
-                                          )
+                                                    width = "100%")
+                                              )
+                                            ))
                                  ), 
                                  tabPanel("Tab 3", 
                                           fluidRow(
@@ -867,21 +1050,35 @@ body <- dashboardBody(
                                                        width = "100%")
                                             )
                                           ),
-                                          fluidRow(
-                                            box(title = "Overview", status = "success", solidHeader = TRUE,
-                                                p(textOutput("text13")), width = 9),
-                                            box(status = "info", solidHeader = TRUE,
-                                                HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
-                                                            "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
-                                                            "<p style = 'font-size: 1.375rem;
+                                          fluidRow(  # Setup
+                                            use_editor("n2dsgmto6sikj8fwkxsua54ix0j18zcdpifat2lh2q4be3nv"),
+                                            
+                                            # Text Input 1
+                                            fluidRow(
+                                              column(
+                                                width = 9,
+                                                editor(id = 'textcontent15', text = ""),
+                                                br(),
+                                                actionButton(
+                                                  "save15",
+                                                  "Save",
+                                                  icon = icon("edit")
+                                                )),
+                                              column(
+                                                width = 3,
+                                                box(status = "info", solidHeader = TRUE,
+                                                    HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                                                "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                                                "<p style = 'font-size: 1.375rem;
                                            font-weight: 400;
                                            color: #606060;
                                            font-family: Ubuntu,sans-serif;'>
                                 This project has received funding from the
                                 European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
                               </p>")), 
-                                                width = 3)     
-                                          ) 
+                                                    width = "100%")
+                                              )
+                                            ))
                                  )
                      ))
             )
@@ -956,8 +1153,120 @@ server <- function(input, output, session) {
   observe({
     
     UpdateEditor(session,
-                 id = "textcontent",
+                 id = "textcontent1",
                  text = download_text("1"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent2",
+                 text = download_text("2"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent3",
+                 text = download_text("3"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent4",
+                 text = download_text("4"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent5",
+                 text = download_text("5"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent6",
+                 text = download_text("6"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent7",
+                 text = download_text("7"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent8",
+                 text = download_text("8"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent9",
+                 text = download_text("9"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent10",
+                 text = download_text("10"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent11",
+                 text = download_text("11"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent12",
+                 text = download_text("12"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent13",
+                 text = download_text("13"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent14",
+                 text = download_text("14"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent15",
+                 text = download_text("15"))
     
   })
   # 
@@ -1952,21 +2261,39 @@ server <- function(input, output, session) {
   })
   
   # Write text input to dropbox
-  observeEvent(input$generatehtml, {
-    
-    editorText(session, editorid = 'textcontent', outputid = 'mytext')
-    
-    generateText <- function(){
-      req(input$mytext)
-      enc2utf8(input$mytext)
-    }
-    
-    
-    write(generateText(), "overview1.txt")
-    drop_upload('overview1.txt', path = "shiny_app", dtoken = token, mode = "overwrite")
-    
-  })
+  write_text_content <- function(arg) {
+    button_id <- paste("save", arg, sep = "")
+    observeEvent(input[[button_id]], {
+      
+      editorText(session, editorid = paste("textcontent", arg, sep = ""), outputid = 'mytext')
+      
+      generateText <- function(){
+        req(input$mytext)
+        enc2utf8(input$mytext)
+      }
+      
+      file_name <- paste("overview", arg, ".txt", sep = "")
+      write(generateText(), file_name)
+      drop_upload(file_name, path = "shiny_app", dtoken = token, mode = "overwrite")
+      
+    })
+  }
   
+  write_text_content("1")
+  write_text_content("2")
+  write_text_content("3")
+  write_text_content("4")
+  write_text_content("5")
+  write_text_content("6")
+  write_text_content("7")
+  write_text_content("8")
+  write_text_content("9")
+  write_text_content("10")
+  write_text_content("11")
+  write_text_content("12")
+  write_text_content("13")
+  write_text_content("14")
+  write_text_content("15")
 }
 
 shinyApp(ui, server)

@@ -1,9 +1,9 @@
 # https://karkoz.shinyapps.io/trade_data/
 
 # shiny app for trade data 
-# runGitHub( "trade_shiny_app", "karkoz", ref = "main")
-# run gist runGist("c6873769798a690b4c9bba63f9320239")
 
+# run gist runGist("c6873769798a690b4c9bba63f9320239")
+library(remotes)
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
@@ -22,22 +22,114 @@ library("rnaturalearth")
 library("rnaturalearthdata")
 library(sf)
 library(tmap)
+library(tmaptools)
 library(leaflet)
 library(rgeos)
 library(rvest)
 library(readr)
 library(zoo)
-library(rdrop2)
 library(ShinyEditor)
-Sys.setlocale("LC_TIME", "English")
+library(rdrop2)
+
+#Sys.setlocale("LC_TIME", "English")
 
 # wd <- setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 # wd <- sub('\\/app.R$', "", wd)
 # setwd(wd)
+
+# corvus corporate colors
+corvus_colors <- c(
+  `turquoise70`= "#7fe6d9ff",
+  `turquoise60`= "#55ddcdff",
+  `turquoise50`= "#2bd4bfff",
+  `turquoise40`= "#28a496ff",
+  `turquoise35`= "#1e9586ff",
+  `turquoise30`= "#1a7f72ff",
+  `turquoise20`= "#11554cff",
+  `turquoise12`= "#0a312cff",
+  `turquoise10`= "#0a2926ff",
+  `turquoise2` = "#020808ff",
+  `gold70`     = "#ffe866ff",
+  `gold60`     = "#ffe133ff",
+  `gold50`     = "#ffda00ff",
+  `gold40`     = "#ccb600ff",
+  `gold35`     = "#b29800ff",
+  `gold30`     = "#998700ff",
+  `gold20`     = "#665a00ff",
+  `gold12`     = "#3d3600ff",
+  `gold10`     = "#332d00ff",
+  `gold2`      = "#0a0800ff",
+  `grey70`     = "#b8b3adff",
+  `grey50`     = "#898076ff",
+  `grey35`     = "#605952ff",
+  `grey20`     = "#3a332cff",
+  `green50`    = "#2ad565ff",
+  `green35`    = "#1e9547ff",
+  `green20`    = "#145229ff",
+  `orange50`   = "#ff9900ff",
+  `orange35`   = "#b26b00ff",
+  `orange20`   = "#663d00ff")
+
+#' Function to extract corvus colors as hex codes
+#'
+#' @param ... Character names of corvus_colors 
+#'
+corvus_cols <- function(...) {
+  cols <- c(...)
+  
+  if (is.null(cols))
+    return (corvus_colors)
+  
+  corvus_colors[cols]
+}
+
+# corvus_cols()
+# 
+# corvus_cols("gold50")
+
+corvus_palettes <- list(
+  `dv3`  = corvus_cols("turquoise35", "grey50", "gold50"),
+  
+  `dv5`  = corvus_cols("turquoise20", "turquoise35", "grey50", "gold50", "gold20"),
+  
+  `dv9`  = corvus_cols("turquoise12", "turquoise20", "turquoise35", "turquoise50", "grey70", "gold50", "gold35", "gold20", "gold12"),
+  
+  `sqGold`   = corvus_cols("gold70", "gold60", "gold50", "gold40", "gold30", "gold20", "gold10", "gold2"),
+  
+  `sqBlue` = corvus_cols("turquoise70", "turquoise60", "turquoise50", "turquoise40", "turquoise30", "turquoise20", "turquoise10", "turquoise2"),
+  
+  `mixed` = corvus_cols("turquoise50", "gold50", "grey50",
+                        "turquoise35", "gold35", "grey35",
+                        "turquoise20", "gold20", "grey20",
+                        "green50", "orange50", "green35",
+                        "orange35", "green20", "orange20"),
+  `mixed2` = corvus_cols("turquoise50", "gold50", "grey50",
+                         "green50", "orange50", "turquoise35",
+                         "gold35", "grey35", "green35",
+                         "orange35", "turquoise20", "gold20",
+                         "grey20", "green20", "orange20")
+  
+)
+
+#' Return function to interpolate a drsimonj color palette
+#'
+#' @param palette Character name of palette in drsimonj_palettes
+#' @param reverse Boolean indicating whether the palette should be reversed
+#' @param ... Additional arguments to pass to colorRampPalette()
+#'
+corvus_pal <- function(palette = "mixed", reverse = FALSE, ...) {
+  pal <- corvus_palettes[[palette]]
+  
+  if (reverse) pal <- rev(pal)
+  
+  colorRampPalette(pal, ...)
+}
+
+
 '%ni%' <- Negate('%in%')
 
-#token <- drop_auth()
-#saveRDS(token, file = "token.rds")
+# token <- drop_auth()
+# saveRDS(token, file = "token.rds")
 token <- readRDS("token.rds")
 # read data from dropbox
 comtrade_data_2016_2020 <- drop_read_csv("shiny_app/comtrade_data_2016_2020.csv")
@@ -80,7 +172,7 @@ x$Exporters[x$Exporters == "RUSSIAN FEDERATION"] <- "RUSSIA"
 x$Exporters[x$Exporters == "BOLIVIA, PLURINATIONAL STATE OF"] <- "BOLIVIA"
 x$Exporters[x$Exporters == "WESTERN SAHARA"] <- "W. SAHARA"
 x$Exporters[x$Exporters == "MACEDONIA, NORTH"] <- "MACEDONIA"
-x$Exporters[x$Exporters == "SAO TOME AND PRINCIPE"] <- "SAO TOMÉ AND PRINCIPE"
+x$Exporters[x$Exporters == "SAO TOME AND PRINCIPE"] <- "SAO TOMĂ‰ AND PRINCIPE"
 x$Exporters[x$Exporters == "KOREA, REPUBLIC OF"] <- "KOREA"
 x$Exporters[x$Exporters == "MACAO, CHINA"] <- "MACAO"
 x$Exporters[x$Exporters == "CHINA, MACAO SAR"] <- "MACAO"
@@ -106,7 +198,7 @@ x$Exporters[x$Exporters == "REP. OF MOLDOVA"] <- "MOLDOVA"
 x$Exporters[x$Exporters == "TFYR OF MACEDONIA"] <- "MACEDONIA"
 
 x$Exporters <- enc2utf8(x$Exporters)
-x$Exporters[x$Exporters == "CÔTE D'IVOIRE"] <- "COTE D'IVOIRE"
+x$Exporters[x$Exporters == "CĂ”TE D'IVOIRE"] <- "COTE D'IVOIRE"
 
 # remove Austria and Malta due to lack of data avaiability
 x <- x %>% filter(Importer %ni% c("AUSTRIA", "MALTA") & Year %ni% c(2015,2020) & Region != "World")
@@ -149,7 +241,22 @@ class(world)
 world <- world %>% select(4,18,19,25)
 world$name <- toupper(world$name)
 world$name <- enc2utf8(world$name)
-world$name[world$name == "CÔTE D'IVOIRE"] <- "COTE D'IVOIRE"
+world$name[world$name == "CĂ”TE D'IVOIRE"] <- "COTE D'IVOIRE"
+
+eurostat_austria_malta_2016_2019 <- drop_read_csv("shiny_app/eurostat_austria_malta_2016_2019.csv")
+#eurostat_austria_malta_2016_2019 <- read.csv("eurostat_austria_malta_2016_2019.csv")
+y <- eurostat_austria_malta_2016_2019
+y$commodity_code <- paste("0" ,y$commodity_code, sep = "")
+y <- y %>% mutate(Date = as.Date(Date),
+                  Month = lubridate::month(Date, label = T),
+                  Year = as.character(Year),
+                  Quantity = round(Quantity))
+y <- y %>% select(Exporters, Date, Quantity, Region, Importer, Year, Month, commodity_code)
+
+x <- dplyr::bind_rows(x, y)
+
+comtrade_list <- toupper(c("Belgium", "Bulgaria", "Croatia", "Cyprus", "France", "Germany", "Greece", "Italy", "Netherlands", "Portugal", "Slovenia", "Spain"))
+eurostat_list <- toupper(c("Austria", "Malta"))
 
 js <- "
 function openFullscreen(elem) {
@@ -175,81 +282,483 @@ css <- "
 #ggplot:fullscreen {
   height: 100%;
 }"
-my_choices2 <- stringr::str_wrap(names(codes_list), width = 35)
+my_choices2 <- stringr::str_wrap(names(codes_list), width = 30)
 my_choices2 <- stringr::str_replace_all(my_choices2, "\\n", "<br>")
 
-download_text <- function() {
+# download text for text editor, working only when run locally
+
+download_text <- function(x) {
   temp <- tempfile()
-  
-  drop_download("shiny_app/plik.txt", dtoken = token, overwrite = T, local_path = temp)
+  name <- paste("shiny_app/overview", x, ".txt", sep = "")
+  drop_download(name, dtoken = token, overwrite = T, local_path = temp)
   t <- read_file(temp)
   return(t)
 }
+# 
+use_editor("n2dsgmto6sikj8fwkxsua54ix0j18zcdpifat2lh2q4be3nv")
 
-t <- download_text()
 
-ui <- dashboardPage(
-  
-  dashboardHeader(title = "Trade data"),
-  
-  dashboardSidebar(
-    sidebarMenu(
-      pickerInput(
-        inputId = "codes",
-        label = "Choose a HS code:", 
-        choices = codes_list,
-        options = list(
-          `live-search` = TRUE),
-        choicesOpt = list(
-          content = my_choices2
-        )
+## build ui.R -----------------------------------
+## 1. header -------------------------------
+header <- 
+  dashboardHeader(title = a(href = 'https://corvus-geostat.pl/en/', target="_blank",
+                            img(src = 'corvus_geostat_logo.png',
+                                title = "Company website", height = "30px")),
+                  tags$li(HTML(paste0(
+                    "<table style='margin-left:auto; margin-right:auto;'>",
+                    "<tr>",
+                    "<td style='padding: 10px;padding-top: 18px;'><a href='https://twitter.com/aszyniszewska?lang=en' target='_blank'><div style='font-size: 13px;'><i class='fab fa-twitter fa-lg'></i></div></a></td>",
+                    "<td style='padding: 10px;padding-top: 18px;'><a href='https://www.linkedin.com/in/anna-szyniszewska-04a1011/' target='_blank'><div style='font-size: 13px;'><i class='fab fa-linkedin-in fa-lg'></i></div></a></td>",
+                    "<td style='padding: 10px;padding-top: 18px;'><a href='https://github.com/aniaszy' target='_blank'><div style='font-size: 13px;'><i class='fab fa-github fa-lg'></i></div></a></td>",
+                    "</tr>",
+                    "</table>")),
+                    class = "dropdown"))
+
+
+
+## 2. sidebar 
+sidebar <- dashboardSidebar(
+  sidebarMenu(
+    pickerInput(
+      inputId = "codes",
+      label = "HS code:", 
+      choices = codes_list,
+      selected = "080450",
+      options = list(
+        `live-search` = TRUE),
+      choicesOpt = list(
+        content = my_choices2
       ),
       
-      menuItem("HS codes fullnames", icon = icon("table"), tabName = "table", badgeLabel = "i", badgeColor = "blue"),
-      menuItem("Import by months and years", tabName = "plot1", icon = icon("far fa-chart-bar"), selected = TRUE),
-      menuItem("Top 10 exporters", icon = icon("far fa-chart-bar"), tabName = "plot2"),
-      menuItem("Exporters map", icon = icon("far fa-map"), tabName = "plot3"),
-      menuItem("Seasonality", icon = icon("fas fa-chart-line"), tabName = "plot4_1"),
-      menuItem("Seasonality by country", icon = icon("fas fa-chart-line"), tabName = "plot4"),
-      menuItem("Import by regions", icon = icon("fas fa-chart-line"), tabName = "plot5"),
-      menuItem("Import by regions, seasonality", icon = icon("far fa-chart-line"), tabName = "plot6"),
-      menuItem(p(HTML("Quarterly export<br>by the top 5 exporters")), icon = icon("fas fa-chart-line"), tabName = "plot7"),
-      menuItem("Heatplot 1", icon = icon("fas fa-border-all"), tabName = "plot8"),
-      menuItem("Heatplot 2", icon = icon("fas fa-border-all"), tabName = "plot9"),
-      menuItem("Heatplot 3", icon = icon("fas fa-border-all"), tabName = "plot10"),
-      menuItem("Export by product groups", icon = icon("fas fa-border-all"), tabName = "plot11")
+    ),
+    radioGroupButtons(
+      inputId = "source",
+      label = "Source:",
+      choices = c("UN Comtrade", 
+                  "Eurostat"),
+      justified = TRUE
+    ),
+    pickerInput(
+      inputId = "importers",
+      label = "Importer:", 
+      choices = comtrade_list,
+      selected = comtrade_list,
+      options = list(
+        `liveSearch` = TRUE,
+        `actions-box` = TRUE),
+      multiple = TRUE
       
-    )
+    ),
+    
+    
+    
+    menuItem("HS codes fullnames", icon = icon("table"), tabName = "table", badgeLabel = "i", badgeColor = "blue"),
+    menuItem("Top importers", tabName = "importers", icon = icon("far fa-chart-bar"), selected = TRUE),
+    menuItem("Import by months and years", tabName = "plot1", icon = icon("far fa-chart-bar")),
+    menuItem("Top 10 exporters", icon = icon("far fa-chart-bar"), tabName = "plot2"),
+    menuItem("Exporters map", icon = icon("far fa-map"), tabName = "plot3"),
+    menuItem("Seasonality", icon = icon("fas fa-chart-line"), tabName = "plot4_1"),
+    menuItem("Seasonality by country", icon = icon("fas fa-chart-line"), tabName = "plot4"),
+    menuItem("Import by regions", icon = icon("fas fa-chart-line"), tabName = "plot5"),
+    menuItem("Import by regions, seasonality", icon = icon("far fa-chart-line"), tabName = "plot6"),
+    menuItem(p(HTML("Quarterly export<br>by the top 5 exporters")), icon = icon("fas fa-chart-line"), tabName = "plot7"),
+    menuItem("Heatplot 1", icon = icon("fas fa-border-all"), tabName = "plot8"),
+    menuItem("Heatplot 2", icon = icon("fas fa-border-all"), tabName = "plot9"),
+    menuItem("Heatplot 3", icon = icon("fas fa-border-all"), tabName = "plot10"),
+    menuItem("Export by product groups", icon = icon("fas fa-border-all"), tabName = "plot11")
+    
+  )
+)
+
+body <- dashboardBody(
+  
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
   ),
+  tags$script(HTML('
+      $(document).ready(function() {
+        $("header").find("nav").append(\'<span class="myClass"> Trade data </span>\');
+      })
+     ')),
   
-  dashboardBody(
-    tabItems(
-      tabItem(tabName = "table",
-              dataTableOutput('table')
-      ),
-      tabItem(tabName = "plot1",
+  tabItems(
+    tabItem(tabName = "table",
+            dataTableOutput('table')
+    ),
+    tabItem(tabName = "importers",
+            fluidRow(
+              box(title = "Plot", status = "primary", solidHeader = TRUE,
+                  plotOutput("top_importers"), width = 12)
+            ),
+            fluidRow(  # Setup
+              use_editor("n2dsgmto6sikj8fwkxsua54ix0j18zcdpifat2lh2q4be3nv"),
+              
+              # Text Input 1
               fluidRow(
-                box(title = "Plot", status = "primary", solidHeader = TRUE,
-                    plotly::plotlyOutput("correlation_plot"), width = 12)
+                column(
+                  width = 9,
+                  editor(id = 'textcontent', text = ""),
+                  br(),
+                  actionButton(
+                    "generatehtml",
+                    "Save",
+                    icon = icon("edit")
+                  )),
+                column(
+                  width = 3,
+                  box(status = "info", solidHeader = TRUE,
+                      HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                  "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                  "<p style = 'font-size: 1.375rem;
+                                           font-weight: 400;
+                                           color: #606060;
+                                           font-family: Ubuntu,sans-serif;'>
+                                This project has received funding from the
+                                European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
+                              </p>")), 
+                      width = "100%")
+                )
+              ))
+            # fluidRow(  # Setup
+            #   box(title = "Overview", status = "success", solidHeader = TRUE,
+            #       p(textOutput("text")), width = 9),
+            #   
+            #   box(status = "info", solidHeader = TRUE,
+            #       HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+            #                   "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+            #                   "<p style = 'font-size: 1.375rem;
+            #                              font-weight: 400;
+            #                              color: #606060;
+            #                              font-family: Ubuntu,sans-serif;'>
+            #                   This project has received funding from the
+            #                   European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
+            #                 </p>")), 
+            #       width = 3))
+    ),
+    tabItem(tabName = "plot1",
+            fluidRow(
+              box(title = "Plot", status = "primary", solidHeader = TRUE,
+                  plotly::plotlyOutput("correlation_plot"), width = 12)
+            ),
+            fluidRow(  # Setup
+              box(title = "Overview", status = "success", solidHeader = TRUE,
+                  p(textOutput("text1")), width = 9),
+              box(status = "info", solidHeader = TRUE,
+                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                              "<p style = 'font-size: 1.375rem;
+                                           font-weight: 400;
+                                           color: #606060;
+                                           font-family: Ubuntu,sans-serif;'>
+                                This project has received funding from the
+                                European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
+                              </p>")), 
+                  width = 3))
+    ),
+    
+    tabItem(tabName = "plot2",
+            fluidRow(
+              
+              column(3,
+                     box(title = "Inputs", status = "warning", solidHeader = TRUE,
+                         checkboxInput("with_or_without4", "Incuding European countries", FALSE),
+                         width = "100%")       
               ),
-              fluidRow(  # Setup
-                use_editor("n2dsgmto6sikj8fwkxsua54ix0j18zcdpifat2lh2q4be3nv"),
-                
-                # Text Input 1
-                fluidRow(
-                  column(
-                    width = 12,
-                    editor(id = 'textcontent', text = t),
-                    br(),
-                    actionButton(
-                      "generatehtml",
-                      "Save",
-                      icon = icon("edit")
-                    ))
-                ))
-      ),
-      
-      tabItem(tabName = "plot2",
+              
+              column(9,
+                     box(title = p("Plot", downloadButton('downloadPlot2', 'Download plot')), status = "primary", solidHeader = TRUE,
+                         plotOutput("top_10exporters_plot"), width = "100%")
+              )
+            ),
+            fluidRow(
+              box(title = "Overview", status = "success", solidHeader = TRUE,
+                  p(textOutput("text2")), width = 9),
+              box(status = "info", solidHeader = TRUE,
+                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                              "<p style = 'font-size: 1.375rem;
+                                           font-weight: 400;
+                                           color: #606060;
+                                           font-family: Ubuntu,sans-serif;'>
+                                This project has received funding from the
+                                European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
+                              </p>")), 
+                  width = 3)
+            ),
+            
+    ),
+    
+    tabItem(tabName = "plot3",
+            fluidRow(
+              box(title = "Plot", status = "primary", solidHeader = TRUE,
+                  leafletOutput("export_map_2016_2019"), width = 12
+              )
+            ),
+            fluidRow(
+              box(title = "Overview", status = "success", solidHeader = TRUE,
+                  p(textOutput("text3")), width = 9),
+              box(status = "info", solidHeader = TRUE,
+                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                              "<p style = 'font-size: 1.375rem;
+                                           font-weight: 400;
+                                           color: #606060;
+                                           font-family: Ubuntu,sans-serif;'>
+                                This project has received funding from the
+                                European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
+                              </p>")), 
+                  width = 3)
+            )
+    ),
+    
+    tabItem(tabName = "plot4_1",
+            fluidRow(
+              box(title = p("Plot", downloadButton('downloadPlot4', 'Download plot')), status = "primary", solidHeader = TRUE,
+                  plotOutput("seasonality"), width = 12
+              )
+            ),
+            fluidRow(
+              box(title = "Overview", status = "success", solidHeader = TRUE,
+                  p(textOutput("text4_1")), width = 9),
+              box(status = "info", solidHeader = TRUE,
+                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                              "<p style = 'font-size: 1.375rem;
+                                           font-weight: 400;
+                                           color: #606060;
+                                           font-family: Ubuntu,sans-serif;'>
+                                This project has received funding from the
+                                European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
+                              </p>")), 
+                  width = 3)
+            )
+    ),
+    
+    tabItem(tabName = "plot4",
+            
+            fluidRow(
+              
+              column(6,
+                     box(title = p("Plot", downloadButton('downloadPlot4_1', 'Download plot')), status = "primary", solidHeader = TRUE,
+                         plotOutput("seasonality_by_exporters"), width = "100%"
+                     )       
+              ),
+              column(6,
+                     box(title = p("Plot", downloadButton('downloadPlot4_2', 'Download plot')), status = "primary", solidHeader = TRUE,
+                         plotOutput("seasonality_by_exporters2"), width = "100%"
+                     )  
+              )
+            ),
+            fluidRow(
+              box(
+                title = "Input 1", status = "warning", solidHeader = TRUE,
+                selectInput("exporters", "Choose a exporter:", ""), width = 6
+              ),
+              box(
+                title = "Input 2", status = "warning", solidHeader = TRUE,
+                selectInput("exporters2", "Choose a exporter:", ""), width = 6
+              )
+            ),
+            fluidRow(
+              box(title = "Overview", status = "success", solidHeader = TRUE,
+                  p(textOutput("text4")), width = 9),
+              box(status = "info", solidHeader = TRUE,
+                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                              "<p style = 'font-size: 1.375rem;
+                                           font-weight: 400;
+                                           color: #606060;
+                                           font-family: Ubuntu,sans-serif;'>
+                                This project has received funding from the
+                                European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
+                              </p>")), 
+                  width = 3)  
+            )
+            
+    ),
+    tabItem(tabName = "plot5",
+            fluidRow(
+              
+              column(3,
+                     box(title = "Inputs", status = "warning", solidHeader = TRUE,
+                         pickerInput(
+                           inputId = "multipleRegions",
+                           label = "Select regions:", 
+                           choices = c("Sub-Saharan Africa", "Europe & Central Asia",
+                                       "Middle East & North Africa", "South Asia",
+                                       "Latin America & Caribbean", "North America",
+                                       "East Asia & Pacific"),
+                           multiple = TRUE,
+                           selected = c("Sub-Saharan Africa", "Europe & Central Asia",
+                                        "Middle East & North Africa", "South Asia",
+                                        "Latin America & Caribbean", "North America",
+                                        "East Asia & Pacific"),
+                           options = list(
+                             `actions-box` = TRUE)
+                         ),
+                         width = "100%")       
+              ),
+              
+              column(9,
+                     box(title = p("Plot", downloadButton('downloadPlot5', 'Download plot')), status = "primary", solidHeader = TRUE,
+                         plotOutput("import_by_regions"), width = "100%")
+              )
+            ),
+            fluidRow(
+              box(title = "Overview", status = "success", solidHeader = TRUE,
+                  p(textOutput("text5")), width = 9),
+              box(status = "info", solidHeader = TRUE,
+                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                              "<p style = 'font-size: 1.375rem;
+                                           font-weight: 400;
+                                           color: #606060;
+                                           font-family: Ubuntu,sans-serif;'>
+                                This project has received funding from the
+                                European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
+                              </p>")), 
+                  width = 3)  
+            )
+    ),
+    tabItem(tabName = "plot6",
+            
+            fluidRow(
+              
+              column(3,
+                     box(title = "Inputs", status = "warning", solidHeader = TRUE,
+                         selectInput("regions", "Choose a region:", c("All", "Sub-Saharan Africa", "Europe & Central Asia",
+                                                                      "Middle East & North Africa", "South Asia",
+                                                                      "Latin America & Caribbean", "North America",
+                                                                      "East Asia & Pacific")),
+                         width = "100%")       
+              ),
+              
+              column(9,
+                     box(title = p("Plot", downloadButton('downloadPlot6', 'Download plot')), status = "primary", solidHeader = TRUE,
+                         plotOutput("import_by_reg_seasonality"), width = "100%")
+              )
+            ),
+            fluidRow(
+              box(title = "Overview", status = "success", solidHeader = TRUE,
+                  p(textOutput("text6")), width = 9),
+              box(status = "info", solidHeader = TRUE,
+                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                              "<p style = 'font-size: 1.375rem;
+                                           font-weight: 400;
+                                           color: #606060;
+                                           font-family: Ubuntu,sans-serif;'>
+                                This project has received funding from the
+                                European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
+                              </p>")), 
+                  width = 3)   
+            ),
+            
+    ),
+    tabItem(tabName = "plot7",
+            
+            fluidRow(
+              
+              column(3,
+                     box(title = "Inputs", status = "warning", solidHeader = TRUE,
+                         checkboxInput("with_or_without1", "Incuding European countries", FALSE),
+                         width = "100%")       
+              ),
+              
+              column(9,
+                     box(title = p("Plot", downloadButton('downloadPlot7', 'Download plot')), status = "primary", solidHeader = TRUE,
+                         plotOutput("top5exp"), width = "100%")
+              )
+            ),
+            fluidRow(
+              box(title = "Overview", status = "success", solidHeader = TRUE,
+                  p(textOutput("text7")), width = 9),
+              box(status = "info", solidHeader = TRUE,
+                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                              "<p style = 'font-size: 1.375rem;
+                                           font-weight: 400;
+                                           color: #606060;
+                                           font-family: Ubuntu,sans-serif;'>
+                                This project has received funding from the
+                                European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
+                              </p>")), 
+                  width = 3)    
+            ),
+    ),
+    tabItem(tabName = "plot8",
+            
+            fluidRow(
+              
+              column(3,
+                     box(title = "Inputs", status = "warning", solidHeader = TRUE,
+                         checkboxInput("with_or_without2", "Incuding European countries", FALSE),
+                         width = "100%")       
+              ),
+              
+              column(9,
+                     box(title = p("Plot", downloadButton('downloadPlot8', 'Download plot')), status = "primary", solidHeader = TRUE,
+                         plotOutput("heatplot1"), 
+                         width = "100%")
+              )
+            ),
+            fluidRow(
+              box(title = "Overview", status = "success", solidHeader = TRUE,
+                  p(textOutput("text8")), width = 9),
+              box(status = "info", solidHeader = TRUE,
+                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                              "<p style = 'font-size: 1.375rem;
+                                           font-weight: 400;
+                                           color: #606060;
+                                           font-family: Ubuntu,sans-serif;'>
+                                This project has received funding from the
+                                European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
+                              </p>")), 
+                  width = 3)    
+            )
+            
+    ),
+    tabItem(tabName = "plot9",
+            
+            fluidRow(
+              
+              column(3,
+                     box(title = "Inputs", status = "warning", solidHeader = TRUE,
+                         selectInput("top10exporters", "Choose from Top10 esporters:", ""),
+                         width = "100%")       
+              ),
+              
+              column(9,
+                     box(title = p("Plot", downloadButton('downloadPlot9', 'Download plot')), status = "primary", solidHeader = TRUE,
+                         plotOutput("heatplot2"), 
+                         width = "100%")
+              )
+            ),
+            fluidRow(
+              box(title = "Overview", status = "success", solidHeader = TRUE,
+                  p(textOutput("text9")), width = 9),
+              box(status = "info", solidHeader = TRUE,
+                  HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                              "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                              "<p style = 'font-size: 1.375rem;
+                                           font-weight: 400;
+                                           color: #606060;
+                                           font-family: Ubuntu,sans-serif;'>
+                                This project has received funding from the
+                                European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
+                              </p>")), 
+                  width = 3)     
+            )
+            
+    ),
+    tabItem(tabName = "plot10",
+            fluidPage(
+              tags$head(
+                tags$script(HTML(js)),
+                tags$style(HTML(css))
+              ),
+              br(),
               fluidRow(
                 
                 column(3,
@@ -259,287 +768,131 @@ ui <- dashboardPage(
                 ),
                 
                 column(9,
-                       box(title = p("Plot", downloadButton('downloadPlot2', 'Download plot')), status = "primary", solidHeader = TRUE,
-                           plotOutput("top_10exporters_plot"), width = "100%")
+                       box(title = p("Plot", downloadButton('downloadPlot10', 'Download plot'), actionButton(
+                         "fs", "", icon = icon("fas fa-expand-arrows-alt", "fas-2x"), 
+                         onclick = "openFullscreen(document.getElementById('top_10exporters_plot'));"
+                       )), status = "primary", solidHeader = TRUE,
+                       plotOutput("heatplot3"), 
+                       width = "100%")
                 )
               ),
               fluidRow(
                 box(title = "Overview", status = "success", solidHeader = TRUE,
-                    p(textOutput("text2")), width = 12)   
-              ),
-              
-      ),
-      
-      tabItem(tabName = "plot3",
-              fluidRow(
-                box(title = "Plot", status = "primary", solidHeader = TRUE,
-                    leafletOutput("export_map_2016_2019"), width = 12
-                )
-              ),
-              fluidRow(
-                box(title = "Overview", status = "success", solidHeader = TRUE,
-                    p(textOutput("text3")), width = 12)
-              )
-      ),
-      
-      tabItem(tabName = "plot4_1",
-              fluidRow(
-                box(title = p("Plot", downloadButton('downloadPlot4', 'Download plot')), status = "primary", solidHeader = TRUE,
-                    plotOutput("seasonality"), width = 12
-                )
-              ),
-              fluidRow(
-                box(title = "Overview", status = "success", solidHeader = TRUE,
-                    p(textOutput("text4_1")), width = 12)
-              )
-      ),
-      
-      tabItem(tabName = "plot4",
-              
-              fluidRow(
-                
-                column(6,
-                       box(title = p("Plot", downloadButton('downloadPlot4_1', 'Download plot')), status = "primary", solidHeader = TRUE,
-                           plotOutput("seasonality_by_exporters"), width = "100%"
-                       )       
-                ),
-                column(6,
-                       box(title = p("Plot", downloadButton('downloadPlot4_2', 'Download plot')), status = "primary", solidHeader = TRUE,
-                           plotOutput("seasonality_by_exporters2"), width = "100%"
-                       )  
-                )
-              ),
-              fluidRow(
-                box(
-                  title = "Input 1", status = "warning", solidHeader = TRUE,
-                  selectInput("exporters", "Choose a exporter:", ""), width = 6
-                ),
-                box(
-                  title = "Input 2", status = "warning", solidHeader = TRUE,
-                  selectInput("exporters2", "Choose a exporter:", ""), width = 6
-                )
-              ),
-              fluidRow(
-                box(title = "Overview", status = "success", solidHeader = TRUE,
-                    p(textOutput("text4")), width = 12)   
-              )
-              
-      ),
-      tabItem(tabName = "plot5",
-              fluidRow(
-                
-                column(3,
-                       box(title = "Inputs", status = "warning", solidHeader = TRUE,
-                           pickerInput(
-                             inputId = "multipleRegions",
-                             label = "Select regions:", 
-                             choices = c("Sub-Saharan Africa", "Europe & Central Asia",
-                                         "Middle East & North Africa", "South Asia",
-                                         "Latin America & Caribbean", "North America",
-                                         "East Asia & Pacific"),
-                             multiple = TRUE,
-                             selected = c("Sub-Saharan Africa", "Europe & Central Asia",
-                                          "Middle East & North Africa", "South Asia",
-                                          "Latin America & Caribbean", "North America",
-                                          "East Asia & Pacific")
-                           ),
-                           width = "100%")       
-                ),
-                
-                column(9,
-                       box(title = p("Plot", downloadButton('downloadPlot5', 'Download plot')), status = "primary", solidHeader = TRUE,
-                           plotOutput("import_by_regions"), width = "100%")
-                )
-              ),
-              fluidRow(
-                box(title = "Overview", status = "success", solidHeader = TRUE,
-                    p(textOutput("text5")), width = 12) 
-              )
-      ),
-      tabItem(tabName = "plot6",
-              
-              fluidRow(
-                
-                column(3,
-                       box(title = "Inputs", status = "warning", solidHeader = TRUE,
-                           selectInput("regions", "Choose a region:", c("All", "Sub-Saharan Africa", "Europe & Central Asia",
-                                                                        "Middle East & North Africa", "South Asia",
-                                                                        "Latin America & Caribbean", "North America",
-                                                                        "East Asia & Pacific")),
-                           width = "100%")       
-                ),
-                
-                column(9,
-                       box(title = p("Plot", downloadButton('downloadPlot6', 'Download plot')), status = "primary", solidHeader = TRUE,
-                           plotOutput("import_by_reg_seasonality"), width = "100%")
-                )
-              ),
-              fluidRow(
-                box(title = "Overview", status = "success", solidHeader = TRUE,
-                    p(textOutput("text6")), width = 12)   
-              ),
-              
-      ),
-      tabItem(tabName = "plot7",
-              
-              fluidRow(
-                
-                column(3,
-                       box(title = "Inputs", status = "warning", solidHeader = TRUE,
-                           checkboxInput("with_or_without1", "Incuding European countries", FALSE),
-                           width = "100%")       
-                ),
-                
-                column(9,
-                       box(title = p("Plot", downloadButton('downloadPlot7', 'Download plot')), status = "primary", solidHeader = TRUE,
-                           plotOutput("top5exp"), width = "100%")
-                )
-              ),
-              fluidRow(
-                box(title = "Overview", status = "success", solidHeader = TRUE,
-                    p(textOutput("text7")), width = 12)   
-              ),
-      ),
-      tabItem(tabName = "plot8",
-              
-              fluidRow(
-                
-                column(3,
-                       box(title = "Inputs", status = "warning", solidHeader = TRUE,
-                           checkboxInput("with_or_without2", "Incuding European countries", FALSE),
-                           width = "100%")       
-                ),
-                
-                column(9,
-                       box(title = p("Plot", downloadButton('downloadPlot8', 'Download plot')), status = "primary", solidHeader = TRUE,
-                           plotOutput("heatplot1"), 
-                           width = "100%")
-                )
-              ),
-              fluidRow(
-                box(title = "Overview", status = "success", solidHeader = TRUE,
-                    p(textOutput("text8")), width = 12)   
-              )
-              
-      ),
-      tabItem(tabName = "plot9",
-              
-              fluidRow(
-                
-                column(3,
-                       box(title = "Inputs", status = "warning", solidHeader = TRUE,
-                           selectInput("top10exporters", "Choose from Top10 esporters:", ""),
-                           width = "100%")       
-                ),
-                
-                column(9,
-                       box(title = p("Plot", downloadButton('downloadPlot9', 'Download plot')), status = "primary", solidHeader = TRUE,
-                           plotOutput("heatplot2"), 
-                           width = "100%")
-                )
-              ),
-              fluidRow(
-                box(title = "Overview", status = "success", solidHeader = TRUE,
-                    p(textOutput("text9")), width = 12)   
-              )
-              
-      ),
-      tabItem(tabName = "plot10",
-              fluidPage(
-                tags$head(
-                  tags$script(HTML(js)),
-                  tags$style(HTML(css))
-                ),
-                br(),
-                fluidRow(
-                  
-                  column(3,
-                         box(title = "Inputs", status = "warning", solidHeader = TRUE,
-                             checkboxInput("with_or_without3", "Incuding European countries", FALSE),
-                             width = "100%")       
-                  ),
-                  
-                  column(9,
-                         box(title = p("Plot", downloadButton('downloadPlot10', 'Download plot'), actionButton(
-                           "fs", "", icon = icon("fas fa-expand-arrows-alt", "fas-2x"), 
-                           onclick = "openFullscreen(document.getElementById('top_10exporters_plot'));"
-                         )), status = "primary", solidHeader = TRUE,
-                         plotOutput("heatplot3"), 
-                         width = "100%")
-                  )
-                ),
-                fluidRow(
-                  box(title = "Overview", status = "success", solidHeader = TRUE,
-                      p(textOutput("text10")), width = 12)   
-                ) 
-              )
-              
-      ),
-      tabItem(tabName = "plot11",
-              fluidRow(
-                column(12,
-                       tabsetPanel(position = "below",
-                                   tabPanel("Tab 1", 
-                                            fluidRow(
-                                              box(title = "Plot", status = "primary", solidHeader = TRUE,
-                                                  plotly::plotlyOutput("compare_product"), width = 12
-                                              )
-                                            ),
-                                            fluidRow(
-                                              box(title = "Overview", status = "success", solidHeader = TRUE,
-                                                  p(textOutput("text11")), width = 12)
+                    p(textOutput("text10")), width = 9),
+                box(status = "info", solidHeader = TRUE,
+                    HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                "<p style = 'font-size: 1.375rem;
+                                           font-weight: 400;
+                                           color: #606060;
+                                           font-family: Ubuntu,sans-serif;'>
+                                This project has received funding from the
+                                European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
+                              </p>")), 
+                    width = 3)    
+              ) 
+            )
+            
+    ),
+    tabItem(tabName = "plot11",
+            fluidRow(
+              column(12,
+                     tabsetPanel(position = "below",
+                                 tabPanel("Tab 1", 
+                                          fluidRow(
+                                            box(title = "Plot", status = "primary", solidHeader = TRUE,
+                                                plotly::plotlyOutput("compare_product"), width = 12
                                             )
-                                   ), 
-                                   tabPanel("Tab 2", 
-                                            fluidRow(
-                                              box(title = "Plot", status = "primary", solidHeader = TRUE,
-                                                  plotly::plotlyOutput("compare_product_by_region"), width = 12
-                                              )
-                                            ),
-                                            fluidRow(
-                                              box(title = "Overview", status = "success", solidHeader = TRUE,
-                                                  p(textOutput("text12")), width = 12)
+                                          ),
+                                          fluidRow(
+                                            box(title = "Overview", status = "success", solidHeader = TRUE,
+                                                p(textOutput("text11")), width = 9),
+                                            box(status = "info", solidHeader = TRUE,
+                                                HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                                            "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                                            "<p style = 'font-size: 1.375rem;
+                                           font-weight: 400;
+                                           color: #606060;
+                                           font-family: Ubuntu,sans-serif;'>
+                                This project has received funding from the
+                                European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
+                              </p>")), 
+                                                width = 3)  
+                                          )
+                                 ), 
+                                 tabPanel("Tab 2", 
+                                          fluidRow(
+                                            box(title = "Plot", status = "primary", solidHeader = TRUE,
+                                                plotly::plotlyOutput("compare_product_by_region"), width = 12
                                             )
-                                   ), 
-                                   tabPanel("Tab 3", 
-                                            fluidRow(
-                                              
-                                              column(3,
-                                                     box(title = "Inputs", status = "warning", solidHeader = TRUE,
-                                                         
-                                                         pickerInput(
-                                                           inputId = "multipleCodes",
-                                                           label = "Select product codes:", 
-                                                           choices = codes_list,
-                                                           multiple = TRUE,
-                                                           choicesOpt = list(
-                                                             content = my_choices2
-                                                           )
-                                                         ),
-                                                         width = "100%")       
-                                              ),
-                                              
-                                              column(9,
-                                                     box(title = p("Plot", downloadButton('downloadPlot11', 'Download plot')), status = "primary", solidHeader = TRUE,
-                                                         plotOutput("import_by_product_codes"), 
-                                                         width = "100%")
-                                              )
+                                          ),
+                                          fluidRow(
+                                            box(title = "Overview", status = "success", solidHeader = TRUE,
+                                                p(textOutput("text12")), width = 9),
+                                            box(status = "info", solidHeader = TRUE,
+                                                HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                                            "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                                            "<p style = 'font-size: 1.375rem;
+                                           font-weight: 400;
+                                           color: #606060;
+                                           font-family: Ubuntu,sans-serif;'>
+                                This project has received funding from the
+                                European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
+                              </p>")), 
+                                                width = 3)  
+                                          )
+                                 ), 
+                                 tabPanel("Tab 3", 
+                                          fluidRow(
+                                            
+                                            column(3,
+                                                   box(title = "Inputs", status = "warning", solidHeader = TRUE,
+                                                       
+                                                       pickerInput(
+                                                         inputId = "multipleCodes",
+                                                         label = "Select product codes:", 
+                                                         choices = codes_list,
+                                                         multiple = TRUE,
+                                                         choicesOpt = list(
+                                                           content = my_choices2
+                                                         )
+                                                       ),
+                                                       width = "100%")       
                                             ),
-                                            fluidRow(
-                                              box(title = "Overview", status = "success", solidHeader = TRUE,
-                                                  p(textOutput("text13")), width = 12)   
-                                            ) 
-                                   )
-                       ))
-              )
-      )
-      
+                                            
+                                            column(9,
+                                                   box(title = p("Plot", downloadButton('downloadPlot11', 'Download plot')), status = "primary", solidHeader = TRUE,
+                                                       plotOutput("import_by_product_codes"), 
+                                                       width = "100%")
+                                            )
+                                          ),
+                                          fluidRow(
+                                            box(title = "Overview", status = "success", solidHeader = TRUE,
+                                                p(textOutput("text13")), width = 9),
+                                            box(status = "info", solidHeader = TRUE,
+                                                HTML(paste0("<a href='https://fruitflies-ipm.eu/' target='_blank'><img title = 'Project website' width='200' height='168' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png' class='image wp-image-138  attachment-medium size-medium' alt='' loading='lazy' style='max-width: 100%; height: auto;' srcset='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-300x168.png 300w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-260x146.png 260w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-50x28.png 50w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541-134x75.png 134w, https://fruitflies-ipm.eu/wp-content/uploads/2019/10/FFIPM_logo-neg-05-e1572003186541.png 657w' sizes='(max-width: 300px) 100vw, 300px'></a>",
+                                                            "<a href='https://ec.europa.eu/programmes/horizon2020/' target='_blank'><img title = 'Horizon 2020 program website' width='150' height='102' src='https://fruitflies-ipm.eu/wp-content/uploads/2019/10/EU-flag-border-e1572002837360.png' class='image wp-image-165  attachment-full size-full' alt='' loading='lazy' style='max-width: 100%; height: auto;'></a>",
+                                                            "<p style = 'font-size: 1.375rem;
+                                           font-weight: 400;
+                                           color: #606060;
+                                           font-family: Ubuntu,sans-serif;'>
+                                This project has received funding from the
+                                European Union's Horizon 2020 research and innovation programme under grant agreement No 818184.
+                              </p>")), 
+                                                width = 3)     
+                                          ) 
+                                 )
+                     ))
+            )
     )
     
   )
   
 )
 
+
+## put UI together --------------------
+ui <- dashboardPage(title = "Trade data", header, sidebar, body )
 
 
 
@@ -560,26 +913,7 @@ server <- function(input, output, session) {
     return(txt)
   }
   
-  # text <- function(){
-  #   if (input$codes == "070930"){
-  #     txt = "fresh or chilled aubergines 'eggplants'"
-  #   } else if (input$codes == "080450") {
-  #     txt = "fresh or dried guavas, mangoes and mangosteens"
-  #   } else if (input$codes == "070960") {
-  #     txt = "fresh or chilled fruits of the genus Capsicum or Pimenta"
-  #   } else if (input$codes == "0805") {
-  #     txt = "fresh or dried citrus fruits"
-  #   } else if (input$codes == "070990") {
-  #     txt = "fresh or chilled vegetables*"
-  #   } else if (input$codes == "081090") {
-  #     txt = "other edible fruits"
-  #   } else {
-  #     #81090
-  #     txt = "missing title"
-  #   }
-  #   return(txt)
-  # }
-  
+  output$text <- renderText({ paste("HS code:", input$codes, "-", text(), "-", "short info about plot", sep = " ") })  
   output$text1 <- renderText({ paste("HS code:", input$codes, "-", text(), "-", "short info about plot", sep = " ") })  
   output$text2 <- renderText({ paste("HS code:", input$codes, "-", text(), "-", "short info about plot", sep = " ") })  
   output$text3 <- renderText({ paste("HS code:", input$codes, "-", text(), "-", "short info about plot", sep = " ") })  
@@ -597,7 +931,7 @@ server <- function(input, output, session) {
   
   exporters <- reactive({
     the_biggest_exporters <- x %>% 
-      filter(commodity_code %in% input$codes) %>%
+      filter(commodity_code %in% input$codes & Importer %in% input$importers) %>%
       group_by(Exporters) %>% 
       dplyr::summarise(Sum_export = sum(Quantity, na.rm = T)) %>%
       arrange(desc(Sum_export))
@@ -617,28 +951,21 @@ server <- function(input, output, session) {
                       choices = exporters()
     )})
   
-  udateEditor <- function(){
-    temp <- tempfile()
-    
-    drop_download("shiny_app/plik.txt", dtoken = token, overwrite = T, local_path = temp)
-    t <- read_file(temp)
-    return(t)
-  }
-  
+  # text editor update 
   observe({
     
     UpdateEditor(session,
                  id = "textcontent",
-                 text = udateEditor())
+                 text = download_text("1"))
     
   })
-  
+  # 
   top10exporters <- reactive({
     the_biggest_exporters <- x %>% 
-      filter(commodity_code %in% input$codes & Region != "Europe & Central Asia") %>%
+      filter(commodity_code %in% input$codes & Region != "Europe & Central Asia" & Importer %in% input$importers) %>%
       group_by(Exporters) %>% 
       dplyr::summarise(Sum_export = sum(Quantity, na.rm = T)) %>%
-      arrange(desc(Sum_export))
+      arrange(desc(Sum_export)) 
     exporters <- the_biggest_exporters %>% head(n = 10) %>% select(Exporters) %>% as.vector()
     exporters <- dplyr::pull(exporters, "Exporters")
     return(exporters)
@@ -654,25 +981,28 @@ server <- function(input, output, session) {
     levels(x$Year) <- c(2016, 2017, 2018, 2019)
     txt <- text()
     title <- paste("Import of", txt, "\nby the seleted European countries* in 2016-2019.", sep = " ")
+    importers <- paste(input$importers, collapse = ", ")
+    captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     
     p <- x %>% 
-      filter(commodity_code %in% input$codes) %>%
+      filter(commodity_code %in% input$codes & Importer %in% input$importers) %>%
       group_by(Month, Year) %>%
       dplyr::summarise(Quantity = sum(Quantity, na.rm = T)) %>%
       ggplot(data = ., aes(x = Month, y = Quantity, fill = Year)) +
       geom_bar(stat = "identity", position = position_stack(reverse = TRUE)) +
       labs(y = "Quantity [tons]", x = "Month",
-           caption="Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain",
-           title = title)
+           caption = captions,
+           title = title) +
+      scale_fill_manual(values = corvus_pal("mixed")(15))
     
     ggplotly(p) %>% 
       layout(margin = list(l = 50, r = 50, t = 60, b = 110),
-             annotations = list(text = 'Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain.',
+             annotations = list(text = captions,
                                 font =  list(size = 11),
                                 showarrow = FALSE,
                                 xref = 'paper', x = 1,
                                 yref = 'paper', y = -0.45,
-                                align = 'right'))
+                                align = 'right')) 
   }
   
   output$correlation_plot <- plotly::renderPlotly({
@@ -682,23 +1012,68 @@ server <- function(input, output, session) {
   # without europe
   #x_2 <- x %>% filter(Region != "Europe & Central Asia" & Region != "World")
   
+  top_importers <- function(){
+    txt <- text()
+    importers <- paste(input$importers, collapse = ", ")
+    captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
+    
+    title <- paste("Quantity of", txt, "import \nby the seleted European countries* in 2016-2019.", sep = " ")
+    
+    x %>%
+      filter(commodity_code %in% input$codes & Importer %in% input$importers) %>%
+      group_by(Importer) %>%
+      dplyr::summarise(Sum_import = sum(Quantity, na.rm = T)) %>%
+      arrange(desc(Sum_import)) %>%
+      head(n = 10) %>%
+      ggplot(data = ., mapping = aes(x = reorder(Importer, -Sum_import), y= Sum_import)) +
+      geom_bar(stat = "identity") +
+      theme_minimal() +
+      theme(axis.text.x = element_text(angle = 45, hjust=1),
+            plot.title = element_text(size=17),
+            axis.title.x = element_text(size=12),
+            axis.title.y = element_text(size=12),
+            axis.text=element_text(size=12),
+            legend.text = element_text(size = 10),
+            legend.title = element_text(size = 10),
+            plot.caption = element_text(size = 10)) +
+      labs(y = "Quantity [tons]", x = "Importers",
+           caption=captions,
+           title = title) +
+      geom_text(aes(label=Sum_import), position=position_dodge(width=0.9), vjust=-0.25, size = 4)
+    
+    # ggplotly(p) %>% 
+    #   layout(margin = list(l = 50, r = 50, t = 60, b = 110),
+    #          annotations = list(text = 'Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain.',
+    #                             font =  list(size = 11),
+    #                             showarrow = FALSE,
+    #                             xref = 'paper', x = 1,
+    #                             yref = 'paper', y = -0.45,
+    #                             align = 'right'))
+    
+    
+  }
+  
+  output$top_importers <- renderPlot({
+    top_importers()
+  })
   
   
   top_10exporters_plot <- function(){
     txt <- text()
-    
-    if (input$with_or_without3 == FALSE) {
+    importers <- paste(input$importers, collapse = ", ")
+    captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
+    if (input$with_or_without4 == FALSE) {
       title <- paste("Top 10 exporters (excluding European countries) of", txt, "imported\nby the seleted European countries* in 2016-2019.", sep = " ")
       
       x %>%
-        filter(commodity_code %in% input$codes & Region != "Europe & Central Asia") %>%
+        filter(commodity_code %in% input$codes & Region != "Europe & Central Asia" & Importer %in% input$importers) %>%
         group_by(Exporters) %>%
         dplyr::summarise(Sum_export = sum(Quantity, na.rm = T)) %>%
         arrange(desc(Sum_export)) %>%
         head(n = 10) %>%
         ggplot(data = ., mapping = aes(x = reorder(Exporters, -Sum_export), y= Sum_export)) +
         geom_bar(stat = "identity") +
-        theme_fivethirtyeight() +
+        theme_minimal() +
         theme(axis.text.x = element_text(angle = 45, hjust=1),
               plot.title = element_text(size=17),
               axis.title.x = element_text(size=12),
@@ -708,7 +1083,7 @@ server <- function(input, output, session) {
               legend.title = element_text(size = 10),
               plot.caption = element_text(size = 10)) +
         labs(y = "Quantity [tons]", x = "Exporters",
-             caption="Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain",
+             caption=captions,
              title = title) +
         geom_text(aes(label=Sum_export), position=position_dodge(width=0.9), vjust=-0.25, size = 4)
       
@@ -722,15 +1097,16 @@ server <- function(input, output, session) {
       #                             align = 'right'))
     } else {
       title <- paste("Top 10 exporters of", txt, "imported\nby the seleted European countries* in 2016-2019.", sep = " ")
+      
       x %>%
-        filter(commodity_code %in% input$codes) %>%
+        filter(commodity_code %in% input$codes & Importer %in% input$importers) %>%
         group_by(Exporters) %>%
         dplyr::summarise(Sum_export = sum(Quantity, na.rm = T)) %>%
         arrange(desc(Sum_export)) %>%
         head(n = 10) %>%
         ggplot(data = ., mapping = aes(x = reorder(Exporters, -Sum_export), y= Sum_export)) +
         geom_bar(stat = "identity") +
-        theme_fivethirtyeight() +
+        theme_minimal() +
         theme(axis.text.x = element_text(angle = 45, hjust=1),
               plot.title = element_text(size=17),
               axis.title.x = element_text(size=12),
@@ -740,7 +1116,7 @@ server <- function(input, output, session) {
               legend.title = element_text(size = 10),
               plot.caption = element_text(size = 10)) +
         labs(y = "Quantity [tons]", x = "Exporters",
-             caption="Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain",
+             caption=captions,
              title = title) +
         geom_text(aes(label=Sum_export), position=position_dodge(width=0.9), vjust=-0.25, size = 4)
     }
@@ -762,7 +1138,7 @@ server <- function(input, output, session) {
     txt <- text()
     
     exporters_2016_2019 <- x %>%
-      filter(commodity_code %in% input$codes) %>%
+      filter(commodity_code %in% input$codes & Importer %in% input$importers) %>%
       group_by(Exporters) %>%
       dplyr::summarise(Quantity = mean(Quantity, na.rm = T))
     
@@ -777,15 +1153,15 @@ server <- function(input, output, session) {
     
     tm <- tm_shape(exporters_2016_2019_sf, projection="+proj=robin") +
       tm_fill(col = "Quantity",
-              palette = "YlOrRd", 
+              palette = corvus_pal("sqGold")(5), 
               title = "Exported quantity [tons]", 
               textNA = "No data", 
               colorNA = "#bdbdbd",
               style = "jenks") +
       tm_borders(col = "#3d3c38", lwd = 0.6, alpha = 0.5) +
-      tm_layout(main.title = map_title,
-                main.title.position = "left",
-                main.title.size = 0.8, fontface = 3,
+      tm_layout(title = map_title,
+                title.position = "left",
+                title.size = 0.8, fontface = 3,
                 legend.title.size=0.8,
                 legend.text.size = 0.6,
                 earth.boundary = TRUE,
@@ -799,17 +1175,19 @@ server <- function(input, output, session) {
   
   seasonality <- function(){
     txt <- text()
-    Title <- paste("Monthly quantity of", txt, "\nimported by the selected European countries in 2015-2019.")
-    
+    Title <- paste("Monthly quantity of", txt, "\nimported by the selected European countries* in 2015-2019.")
+    importers <- paste(input$importers, collapse = ", ")
+    captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     p <- x %>% 
-      filter(commodity_code %in% input$codes) %>%
+      filter(commodity_code %in% input$codes & Importer %in% input$importers) %>%
       group_by(Date) %>%
       dplyr::summarise(sum = sum(Quantity, na.rm = T)) %>%
       mutate(Year = as.factor(year(Date)),
              Month = month(Date, label = T)) %>%
       ggplot(data = ., aes(x = Month, y = sum, colour = Year)) +
-      geom_line(aes(group = Year), size = 1.1) +
-      theme_fivethirtyeight() +
+      geom_line(aes(group = Year), size = 1, linetype="dotdash") +
+      geom_point(aes(color=Year), size = 3.5) +
+      theme_minimal() +
       theme(axis.text.x = element_text(angle = 50, hjust=1),
             plot.title = element_text(size=17),
             axis.title.x = element_text(size=12),
@@ -819,8 +1197,9 @@ server <- function(input, output, session) {
             legend.title = element_text(size = 10),
             plot.caption = element_text(size = 10)) +
       labs(y = "Quantity [tons]", 
-           caption="Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain",
-           title = Title)
+           caption = captions,
+           title = Title) +
+      scale_color_manual(values = corvus_pal("mixed")(15))
     p
     
   }
@@ -838,17 +1217,19 @@ server <- function(input, output, session) {
   
   seasonality_by_exporters <- function(){
     txt <- text()
-    Title <- paste("Monthly quantity of", txt, "\nimported by the selected European countries in 2015-2019 from", input$exporters)
-    
+    Title <- paste("Monthly quantity of", txt, "\nimported by the selected European countries* in 2015-2019 from", input$exporters)
+    importers <- paste(input$importers, collapse = ", ")
+    captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     p <- x %>% 
-      filter(commodity_code %in% input$codes & Exporters %in% input$exporters) %>%
+      filter(commodity_code %in% input$codes & Exporters %in% input$exporters & Importer %in% input$importers) %>%
       group_by(Date) %>%
       dplyr::summarise(sum = sum(Quantity, na.rm = T)) %>%
       mutate(Year = as.factor(year(Date)),
              Month = month(Date, label = T)) %>%
       ggplot(data = ., aes(x = Month, y = sum, colour = Year)) +
-      geom_line(aes(group = Year), size = 1.1) +
-      theme_fivethirtyeight() +
+      geom_line(aes(group = Year), size = 1, linetype="dotdash") +
+      geom_point(aes(color=Year), size = 2.5) +
+      theme_minimal() +
       theme(axis.text.x = element_text(angle = 50, hjust=1),
             plot.title = element_text(size=13),
             axis.title.x = element_text(size=12),
@@ -857,7 +1238,8 @@ server <- function(input, output, session) {
             legend.text = element_text(size = 10),
             legend.title = element_text(size = 10),
             plot.caption = element_text(size = 10)) +
-      labs(y = "Quantity [tons]", title = Title)
+      labs(y = "Quantity [tons]", title = Title, caption = captions) +
+      scale_color_manual(values = corvus_pal("mixed")(15))
     
     p  
   }
@@ -875,17 +1257,19 @@ server <- function(input, output, session) {
   
   seasonality_by_exporters2 <- function(){
     txt <- text()
-    Title <- paste("Monthly quantity of", txt, "\nimported by the selected European countries in 2015-2019 from", input$exporters2)
-    
+    Title <- paste("Monthly quantity of", txt, "\nimported by the selected European countries* in 2015-2019 from", input$exporters2)
+    importers <- paste(input$importers, collapse = ", ")
+    captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     p <- x %>% 
-      filter(commodity_code %in% input$codes & Exporters %in% input$exporters2) %>%
+      filter(commodity_code %in% input$codes & Exporters %in% input$exporters2 & Importer %in% input$importers) %>%
       group_by(Date) %>%
       dplyr::summarise(sum = sum(Quantity, na.rm = T)) %>%
       mutate(Year = as.factor(year(Date)),
              Month = month(Date, label = T)) %>%
       ggplot(data = ., aes(x = Month, y = sum, colour = Year)) +
-      geom_line(aes(group = Year), size = 1.1) +
-      theme_fivethirtyeight() +
+      geom_line(aes(group = Year), size = 1, linetype="dotdash") +
+      geom_point(aes(color=Year), size = 2.5) +
+      theme_minimal() +
       theme(axis.text.x = element_text(angle = 50, hjust=1),
             plot.title = element_text(size=13),
             axis.title.x = element_text(size=12),
@@ -894,7 +1278,8 @@ server <- function(input, output, session) {
             legend.text = element_text(size = 10),
             legend.title = element_text(size = 10),
             plot.caption = element_text(size = 10)) +
-      labs(y = "Quantity [tons]", title = Title)
+      labs(y = "Quantity [tons]", title = Title, caption = captions) +
+      scale_color_manual(values = corvus_pal("mixed")(15))
     
     p  
   }
@@ -912,15 +1297,18 @@ server <- function(input, output, session) {
   
   import_by_regions <- function(){
     txt <- text()
+    importers <- paste(input$importers, collapse = ", ")
+    captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     x %>%
-      filter(commodity_code %in% input$codes & Region %in% input$multipleRegions) %>%
+      filter(commodity_code %in% input$codes & Region %in% input$multipleRegions & Importer %in% input$importers) %>%
       group_by(Region, Date) %>%
       dplyr::summarise(sum_region = sum(Quantity, na.rm = T)) %>%
       ggplot(data = ., aes(x = Date, y = sum_region, colour = Region))+
-      geom_line(size = 1.1) + 
+      geom_line(size = 1, linetype="dotdash") + 
+      geom_point(aes(color=Region), size = 2.5) +
       xlab("") + 
       scale_x_date(breaks = seq(as.Date("2016-01-01"), as.Date("2019-12-01"), by="6 months"), date_labels = "%Y %b") +
-      theme_fivethirtyeight() +
+      theme_minimal() +
       theme(plot.title = element_text(size=17),
             axis.title.x = element_text(size=12),
             axis.title.y = element_text(size=12),
@@ -929,12 +1317,11 @@ server <- function(input, output, session) {
             legend.title = element_text(size = 10),
             plot.caption = element_text(size = 10)) +
       labs(y = "Quantity [tons]",
-           caption="Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain",
-           title = paste("Monthly quantity of", txt, "imported\nby the selected European countries* in 2016-2019 broken down by Regions.", sep = " ")) + 
-      scale_colour_manual(values = c("East Asia & Pacific"="#F8766D", "Europe & Central Asia"="#C49A00", 
-                                     "Latin America & Caribbean"="#53B400", "Middle East & North Africa"="#00C094",
-                                     "North America"="#00B6EB", "South Asia"="#A58AFF", "Sub-Saharan Africa"="#FB61D7"))
-    
+           caption = captions,
+           title = paste("Monthly quantity of", txt, "imported\nby the selected European countries* in 2016-2019 broken down by Regions.", sep = " ")) +
+      scale_colour_manual(values = c("East Asia & Pacific"="#2bd4bfff", "Europe & Central Asia"="#ffda00ff", 
+                                     "Latin America & Caribbean"="#898076ff", "Middle East & North Africa"="#2ad565ff",
+                                     "North America"="#ff9900ff" , "South Asia"="#1e9586ff", "Sub-Saharan Africa"="#b29800ff"))
     
   }
   
@@ -954,16 +1341,18 @@ server <- function(input, output, session) {
   import_by_reg_seasonality <- function(){
     
     txt <- text()
-    
+    importers <- paste(input$importers, collapse = ", ")
+    captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     if (input$regions == "All") {
       
       x %>% 
-        filter(commodity_code %in% input$codes) %>%
+        filter(commodity_code %in% input$codes & Importer %in% input$importers) %>%
         group_by(Region, Month) %>%
         dplyr::summarise(sum = sum(Quantity, na.rm = T)) %>%
         ggplot(data = ., aes(x = Month, y = sum, colour = Region)) +
-        geom_line(aes(group = Region), size = 1.1) +
-        theme_fivethirtyeight() +
+        geom_line(aes(group = Region), size = 1, linetype="dotdash") +
+        geom_point(aes(color=Region), size = 2.5) +
+        theme_minimal() +
         theme(plot.title = element_text(size=17),
               axis.title.x = element_text(size=12),
               axis.title.y = element_text(size=12),
@@ -972,22 +1361,23 @@ server <- function(input, output, session) {
               legend.title = element_text(size = 10),
               plot.caption = element_text(size = 10)) +
         labs(y = "Quantity [tons]",
-             caption="Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain",
-             title = paste("Monthly quantity of", txt, "\nimported by the selected European countries* in 2016-2019 broken down by regions.", sep = " "))  
-      
+             caption = captions,
+             title = paste("Monthly quantity of", txt, "\nimported by the selected European countries* in 2016-2019 broken down by regions.", sep = " "))  +
+        scale_color_manual(values = corvus_pal("mixed")(15))
     } else {
       
       region <- input$regions
       
       x %>% 
-        filter(commodity_code %in% input$codes & Region %in% region) %>%
+        filter(commodity_code %in% input$codes & Region %in% region & Importer %in% input$importers) %>%
         group_by(Date) %>%
         dplyr::summarise(sum = sum(Quantity, na.rm = T)) %>%
         mutate(Year = as.factor(year(Date)),
                Month = month(Date, label = T)) %>%
         ggplot(data = ., aes(x = Month, y = sum, colour = Year)) +
-        geom_line(aes(group = Year), size = 1.1) +
-        theme_fivethirtyeight() +
+        geom_line(aes(group = Year), size = 1, linetype="dotdash") +
+        geom_point(aes(color=Year), size = 2.5) +
+        theme_minimal() +
         theme(plot.title = element_text(size=17),
               axis.title.x = element_text(size=12),
               axis.title.y = element_text(size=12),
@@ -996,8 +1386,9 @@ server <- function(input, output, session) {
               legend.title = element_text(size = 10),
               plot.caption = element_text(size = 10)) +
         labs(y = "Quantity [tons]",
-             caption="Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain",
-             title = paste("Monthly quantity of", txt, "\nimported by the selected European countries* in 2016-2019 from", region, sep = " ")) 
+             caption = captions,
+             title = paste("Monthly quantity of", txt, "\nimported by the selected European countries* in 2016-2019 from", region, sep = " ")) +
+        scale_color_manual(values = corvus_pal("mixed")(15))
       
     }
     
@@ -1016,11 +1407,13 @@ server <- function(input, output, session) {
   
   top5exp <- function(){
     txt <- text()
+    importers <- paste(input$importers, collapse = ", ")
+    captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     if (input$with_or_without1 == FALSE) {
       
       ####
       x_2 <- x %>% 
-        filter(commodity_code %in% input$codes & Region != "Europe & Central Asia")
+        filter(commodity_code %in% input$codes & Region != "Europe & Central Asia" & Importer %in% input$importers)
       
       top5Exporters_lat4yrs <- x_2 %>%
         group_by(Exporters) %>%
@@ -1035,9 +1428,10 @@ server <- function(input, output, session) {
         dplyr::summarise(Quantity = sum(Quantity, na.rm = T))
       
       ggplot(data = imports_last4yrs, aes(x = Quarter, y = Quantity, colour = Exporters)) +
-        geom_line(size = 1.1) + 
+        geom_line(size = 1, linetype="dotdash") + 
+        geom_point(aes(color=Exporters), size = 2.5) +
         xlab("") + 
-        theme_fivethirtyeight() +
+        theme_minimal() +
         theme(plot.title = element_text(size=17),
               axis.title.x = element_text(size=12),
               axis.title.y = element_text(size=12),
@@ -1047,14 +1441,15 @@ server <- function(input, output, session) {
               plot.caption = element_text(size = 10),
               axis.text.x=element_text(angle=60, hjust=1)) +
         labs(y = "Quantity [tons]",
-             caption="Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain",
+             caption = captions,
              title = paste("Annual export of", txt, "for the 5 largest exporters\n(excluding European countries) to selected European countries* in 2016-2019.", sep = " ")) +
-        scale_x_yearqtr(format = "%Y-%q", n = 16)
+        scale_x_yearqtr(format = "%Y-%q", n = 16) + 
+        scale_color_manual(values = corvus_pal("mixed")(15)) 
       
     } else {
       
       top5Exporters_lat4yrs <- x %>%
-        filter(commodity_code %in% input$codes) %>%
+        filter(commodity_code %in% input$codes & Importer %in% input$importers) %>%
         group_by(Exporters) %>%
         dplyr::summarise(Quantity = sum(Quantity, na.rm = T)) %>%
         arrange(desc(Quantity)) %>%
@@ -1067,8 +1462,9 @@ server <- function(input, output, session) {
         dplyr::summarise(Quantity = sum(Quantity, na.rm = T))
       
       ggplot(data = imports_last4yrs, aes(x = Quarter, y = Quantity, colour = Exporters)) +
-        geom_line(size = 1.1) + 
-        theme_fivethirtyeight() +
+        geom_line(size = 1, linetype="dotdash") + 
+        geom_point(aes(color=Exporters), size = 2.5) +
+        theme_minimal() +
         theme(plot.title = element_text(size=17),
               axis.title.x = element_text(size=12),
               axis.title.y = element_text(size=12),
@@ -1078,9 +1474,10 @@ server <- function(input, output, session) {
               plot.caption = element_text(size = 10),
               axis.text.x=element_text(angle=60, hjust=1)) +
         labs(y = "Quantity [tons]",
-             caption="Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain",
+             caption = captions,
              title = paste("Quarterly export of", txt, "for the 5 largest exporters\n(including European countries) to selected European countries* in 2016-2019.", sep = " ")) + 
-        scale_x_yearqtr(format = "%Y-%q", n = 16)
+        scale_x_yearqtr(format = "%Y-%q", n = 16) + 
+        scale_color_manual(values = corvus_pal("mixed")(15)) 
       
     }
     
@@ -1101,11 +1498,13 @@ server <- function(input, output, session) {
   
   heatplot1 <- function(){
     txt <- text()
+    importers <- paste(input$importers, collapse = ", ")
+    captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     '%ni%' <- Negate('%in%')
     
     if (input$with_or_without2 == FALSE) {
       x_2 <- x %>% 
-        filter(commodity_code %in% input$codes & Region != "Europe & Central Asia")
+        filter(commodity_code %in% input$codes & Region != "Europe & Central Asia" & Importer %in% input$importers)
       # Annual exports of by the 15 largest exporters. (excluding european countries)
       top_15_exporters <- x_2 %>%
         group_by(Exporters) %>%
@@ -1134,13 +1533,13 @@ server <- function(input, output, session) {
       ggplot(the_biggest_exporters_by_year, aes(Year, Exporters, fill = Sum_export)) + 
         geom_tile(colour="grey95") + 
         scale_fill_gradientn(name = "Quantity [tons]", 
-                             colours = c("#ffffeb", "#ffeda0", "#fed976", "#feb24c", "#fd8d3c", "#fc4e2a", "#e31a1c", "#bd0026", "#800026"), 
+                             colours = corvus_pal("sqGold")(8), 
                              values = c(0,0.001,0.1, 0.2, 0.4, 0.7,1),
                              breaks = Breaks$brks)+
-        theme_bw() + theme_minimal() +
+        theme_minimal() + theme_minimal() +
         labs(title = paste("Annual exports of", txt, "to selected\nEuropean countries* in 2016-2019 by the 15 largest exporters (excluding European countries).", sep = " "),
              x = "Year", y = "Exporters",
-             caption="Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain") +
+             caption = captions) +
         theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
         theme(plot.title = element_text(size=17),
               axis.title.x = element_text(size=12),
@@ -1154,7 +1553,7 @@ server <- function(input, output, session) {
       
     } else {
       x <- x %>% 
-        filter(commodity_code %in% input$codes)
+        filter(commodity_code %in% input$codes & Importer %in% input$importers)
       # Annual exports of by the 15 largest exporters. (excluding european countries)
       top_15_exporters <- x %>%
         group_by(Exporters) %>%
@@ -1183,13 +1582,13 @@ server <- function(input, output, session) {
       ggplot(the_biggest_exporters_by_year, aes(Year, Exporters, fill = Sum_export)) + 
         geom_tile(colour="grey95") + 
         scale_fill_gradientn(name = "Quantity [tons]", 
-                             colours = c("#ffffeb", "#ffeda0", "#fed976", "#feb24c", "#fd8d3c", "#fc4e2a", "#e31a1c", "#bd0026", "#800026"), 
+                             colours = corvus_pal("sqGold")(8), 
                              values = c(0,0.001,0.1, 0.2, 0.4, 0.7,1),
                              breaks = Breaks$brks)+
-        theme_bw() + theme_minimal() +
+        theme_minimal() + theme_minimal() +
         labs(title = paste("Annual exports of", txt, "to selected\nEuropean countries* in 2016-2019 by the 15 largest exporters (including European countries).", sep = " "),
              x = "Year", y = "Exporters",
-             caption="Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain") +
+             caption = captions) +
         theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
         theme(plot.title = element_text(size=17),
               axis.title.x = element_text(size=12),
@@ -1217,9 +1616,11 @@ server <- function(input, output, session) {
   
   heatplot2 <- function(){
     txt <- text()
+    importers <- paste(input$importers, collapse = ", ")
+    captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     exporter <- input$top10exporters
     top_exporter_export <- x %>%
-      filter(commodity_code %in% input$codes & Exporters %in% exporter) %>%
+      filter(commodity_code %in% input$codes & Exporters %in% exporter & Importer %in% input$importers) %>%
       group_by(Importer, Year) %>%
       dplyr::summarise(Annual_export = sum(Quantity, na.rm = T))
     
@@ -1233,13 +1634,13 @@ server <- function(input, output, session) {
     ggplot(top_exporter_export, aes(Year, Importer, fill = Annual_export)) +
       geom_tile(colour="grey90") +
       scale_fill_gradientn(name = "Quantity [tons]",
-                           colours = c("#ffffeb", "#ffeda0", "#fed976", "#feb24c", "#fd8d3c", "#fc4e2a", "#e31a1c", "#bd0026", "#800026"),
+                           colours = corvus_pal("sqGold")(8),
                            values = c(0,0.001,0.1, 0.2, 0.4, 0.7,1),
                            breaks = Breaks$brks,
                            na.value = "grey50") +
-      theme_bw() + theme_minimal() +
+      theme_minimal() + theme_minimal() +
       labs(title = paste("Annual import of", txt, "\nfrom", exporter, "to selected European countries* in 2016-2019.", sep = " "),
-           caption="Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain",
+           caption = captions,
            x = "Year", y = "Importers") +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
       theme(plot.title = element_text(size=17),
@@ -1269,11 +1670,12 @@ server <- function(input, output, session) {
   # heatplot 3 
   heatplot3 <- function(){
     txt <- text()
-    
+    importers <- paste(input$importers, collapse = ", ")
+    captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     if (input$with_or_without3 == FALSE) {
       #excluding europe
       x_2 <- x %>% 
-        filter(commodity_code %in% input$codes & Region != "Europe & Central Asia")
+        filter(commodity_code %in% input$codes & Region != "Europe & Central Asia" & Importer %in% input$importers)
       
       sum_by_exporters_importers <- x_2 %>%
         group_by(Exporters, Importer) %>%
@@ -1300,13 +1702,13 @@ server <- function(input, output, session) {
       ggplot(sum_by_exporters_importers, aes(Importer, Exporters, fill = Total_quantity)) + 
         geom_tile(colour="grey90") + 
         scale_fill_gradientn(name = "Quantity [tons]", 
-                             colours = c("#ffffeb", "#ffeda0", "#fed976", "#feb24c", "#fd8d3c", "#fc4e2a", "#e31a1c", "#bd0026", "#800026"), 
+                             colours = corvus_pal("sqGold")(8), 
                              values = c(0,0.001,0.1, 0.2, 0.4, 0.7,1),
                              breaks = Breaks$brks, 
                              na.value = "grey50")+
-        theme_bw() + theme_minimal() +
+        theme_minimal() + theme_minimal() +
         labs(title = paste("Trade of", txt, "in 2016-2019 between\nselected European countries* and the 25 largest exporters (excluding European countries).", sep = " "),
-             caption="Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain",
+             caption=captions,
              x = "Importers", y = "Exporters") +
         theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
         theme(axis.text.x=element_text(angle=40, hjust=1),
@@ -1326,7 +1728,7 @@ server <- function(input, output, session) {
       #including europe
       
       sum_by_exporters_importers <- x %>%
-        filter(commodity_code %in% input$codes) %>%
+        filter(commodity_code %in% input$codes & Importer %in% input$importers) %>%
         group_by(Exporters, Importer) %>%
         dplyr::summarise(Total_quantity = sum(Quantity, na.rm = T)) #%>%
       #spread(Importer, Total_quantity)
@@ -1351,13 +1753,13 @@ server <- function(input, output, session) {
       ggplot(sum_by_exporters_importers, aes(Importer, Exporters, fill = Total_quantity)) + 
         geom_tile(colour="grey90") + 
         scale_fill_gradientn(name = "Quantity [tons]", 
-                             colours = c("#ffffeb", "#ffeda0", "#fed976", "#feb24c", "#fd8d3c", "#fc4e2a", "#e31a1c", "#bd0026", "#800026"), 
+                             colours = corvus_pal("sqGold")(8), 
                              values = c(0,0.001,0.1, 0.2, 0.4, 0.7,1),
                              breaks = Breaks$brks, 
                              na.value = "grey50")+
-        theme_bw() + theme_minimal() +
+        theme_minimal() + theme_minimal() +
         labs(title = paste("Trade of", txt, "in 2016-2019 between\nselected European countries* and the 25 largest exporters (excluding European countries).", sep = " "),
-             caption="Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain",
+             caption = captions,
              x = "Importers", y = "Exporters") +
         theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
         theme(axis.text.x=element_text(angle=40, hjust=1),
@@ -1388,8 +1790,11 @@ server <- function(input, output, session) {
   )
   
   output$compare_product <- plotly::renderPlotly({
+    importers <- paste(input$importers, collapse = ", ")
+    captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     
     plot <- x %>%
+      filter(Importer %in% input$importers) %>%
       group_by(commodity_code, HS_code_name) %>%
       dplyr::summarise(Quantity = sum(Quantity, na.rm = T)) %>%
       ggplot(data = ., mapping = aes(x = reorder(commodity_code, -Quantity), y= Quantity)) +
@@ -1397,23 +1802,23 @@ server <- function(input, output, session) {
         group = HS_code_name, 
         text = paste("Quantity:", Quantity)
       ),stat = "identity") +
-      theme_fivethirtyeight() +
+      theme_minimal() +
       theme(axis.text.x = element_text(angle = 45, hjust=1),
-            plot.title = element_text(size=17),
-            axis.title.x = element_text(size=12),
-            axis.title.y = element_text(size=12),
-            axis.text=element_text(size=12),
-            legend.text = element_text(size = 10),
-            legend.title = element_text(size = 10),
-            plot.caption = element_text(size = 10)) +
+            plot.title = element_text(size=14),
+            axis.title.x = element_text(size=10),
+            axis.title.y = element_text(size=10),
+            axis.text=element_text(size=10),
+            legend.text = element_text(size = 8),
+            legend.title = element_text(size = 8),
+            plot.caption = element_text(size = 8)) +
       labs(y = "Quantity [tons]", x = "Product code",
-           caption="Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain",
+           caption = captions,
            title = "Import of selected groups of goods by the seleted European countries* in 2016-2019.")
     
     ggplotly(plot, tooltip = c("commodity_code", "HS_code_name", "text")) %>% 
       layout(margin = list(l = 50, r = 50, t = 60, b = 110),
-             annotations = list(text = 'Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain.',
-                                font =  list(size = 14),
+             annotations = list(text = captions,
+                                font =  list(size = 10),
                                 showarrow = FALSE,
                                 xref = 'paper', x = 1,
                                 yref = 'paper', y = -0.45,
@@ -1422,12 +1827,16 @@ server <- function(input, output, session) {
   })
   
   output$compare_product_by_region <- plotly::renderPlotly({
+    importers <- paste(input$importers, collapse = ", ")
+    captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     
     sum_all <- x %>% 
+      filter(Importer %in% input$importers) %>%
       group_by(commodity_code) %>%
       dplyr::summarise(Sum_all = sum(Quantity, na.rm = T))
     
     gr_by_region <- x %>%
+      filter(Importer %in% input$importers) %>%
       group_by(commodity_code, HS_code_name, Region) %>%
       dplyr::summarise(Sum = sum(Quantity, na.rm = T))
     
@@ -1440,6 +1849,7 @@ server <- function(input, output, session) {
       arrange(desc(Quantity_share))
     
     levels_region <- x %>%
+      filter(Importer %in% input$importers) %>%
       group_by(Region) %>%
       dplyr::summarise(Sum = sum(Quantity, na.rm = T)) %>%
       arrange(desc(Sum)) 
@@ -1447,27 +1857,25 @@ server <- function(input, output, session) {
     p <- x_3 %>%
       ggplot(data = ., mapping = aes(x = commodity_code, y= Quantity_share, fill = factor(Region, levels = levels_region$Region))) +
       geom_bar(stat = "identity") +
-      theme_fivethirtyeight() +
+      theme_minimal() +
       theme(axis.text.x = element_text(angle = 45, hjust=1),
-            plot.title = element_text(size=17),
-            axis.title.x = element_text(size=12),
-            axis.title.y = element_text(size=12),
-            axis.text=element_text(size=12),
-            legend.text = element_text(size = 10),
-            legend.title = element_text(size = 10),
-            plot.caption = element_text(size = 10)) +
+            plot.title = element_text(size=14),
+            axis.title.x = element_text(size=10),
+            axis.title.y = element_text(size=10),
+            axis.text=element_text(size=10),
+            legend.text = element_text(size = 8),
+            legend.title = element_text(size = 8),
+            plot.caption = element_text(size = 8)) +
       labs(y = "Quantity [tons]", x = "Product code", fill = "Region",
            title = "Import of selected groups of goods by the seleted European countries* in 2016-2019 broken down by regions.")  +
       scale_x_discrete(limits=(order$commodity_code)) + 
-      scale_fill_manual(values = c("East Asia & Pacific"="#F8766D", "Europe & Central Asia"="#C49A00", 
-                                   "Latin America & Caribbean"="#53B400", "Middle East & North Africa"="#00C094",
-                                   "North America"="#00B6EB", "South Asia"="#A58AFF", "Sub-Saharan Africa"="#FB61D7")) + 
+      scale_fill_manual(values = corvus_pal("mixed2")(15)) + 
       geom_col(position = position_stack(reverse = T))
     
     ggplotly(p, tooltip = c("HS_code_name", "Quantity_share", "Region")) %>% 
       layout(margin = list(l = 50, r = 50, t = 60, b = 110),
-             annotations = list(text = 'Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain.',
-                                font =  list(size = 14),
+             annotations = list(text = captions,
+                                font =  list(size = 10),
                                 showarrow = FALSE,
                                 xref = 'paper', x = 1,
                                 yref = 'paper', y = -0.45,
@@ -1477,16 +1885,20 @@ server <- function(input, output, session) {
   })
   
   import_by_product_codes <- function(){
+    importers <- paste(input$importers, collapse = ", ")
+    captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
+    
     txt <- text()
     x %>%
-      filter(commodity_code %in% input$multipleCodes) %>%
+      filter(commodity_code %in% input$multipleCodes & Importer %in% input$importers) %>%
       group_by(commodity_code, Date) %>%
       dplyr::summarise(sum_code = sum(Quantity, na.rm = T)) %>%
       ggplot(data = ., aes(x = Date, y = sum_code, colour = commodity_code))+
-      geom_line(size = 1.1) + 
+      geom_line(size = 1, linetype="dotdash") + 
+      geom_point(aes(color=commodity_code), size = 2.5) +
       xlab("") + 
       scale_x_date(breaks = seq(as.Date("2016-01-01"), as.Date("2019-12-01"), by="6 months"), date_labels = "%Y %b") +
-      theme_fivethirtyeight() +
+      theme_minimal() +
       theme(plot.title = element_text(size=17),
             axis.title.x = element_text(size=12),
             axis.title.y = element_text(size=12),
@@ -1495,8 +1907,9 @@ server <- function(input, output, session) {
             legend.title = element_text(size = 10),
             plot.caption = element_text(size = 10)) +
       labs(y = "Quantity [tons]", colour = "HS code",
-           caption="Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain",
-           title = paste("Monthly quantity of", txt, "imported\nby the selected European countries* in 2016-2019 broken down by product codes.", sep = " ")) 
+           caption = captions,
+           title = paste("Monthly quantity of", txt, "imported\nby the selected European countries* in 2016-2019 broken down by product codes.", sep = " ")) +
+      scale_color_manual(values = corvus_pal("mixed2")(15)) 
     
     
   }
@@ -1512,7 +1925,32 @@ server <- function(input, output, session) {
     }
   )
   
-  # Generate HTML
+  observeEvent(input$source,{
+    if(input$source %in% 'UN Comtrade') {
+      
+      updatePickerInput(session, "importers",
+                        label = paste("Importer:"),
+                        choices = comtrade_list,
+                        selected = comtrade_list
+      )
+    } else if (input$source %in% 'Eurostat') {
+      
+      updatePickerInput(session, "importers",
+                        label = paste("Importer:"),
+                        choices = eurostat_list,
+                        selected = eurostat_list
+      )
+    } else {
+      updatePickerInput(session, "importers",
+                        label = paste("select source"),
+                        choices = "",
+                        selected = ""
+      )
+    }
+    
+  })
+  
+  # Write text input to dropbox
   observeEvent(input$generatehtml, {
     
     editorText(session, editorid = 'textcontent', outputid = 'mytext')
@@ -1523,8 +1961,8 @@ server <- function(input, output, session) {
     }
     
     
-    write(generateText(), "plik.txt")
-    drop_upload('plik.txt', path = "shiny_app", dtoken = token, mode = "overwrite")
+    write(generateText(), "overview1.txt")
+    drop_upload('overview1.txt', path = "shiny_app", dtoken = token, mode = "overwrite")
     
   })
   

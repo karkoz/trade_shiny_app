@@ -136,7 +136,7 @@ token <- readRDS("token.rds")
 drop_acc(dtoken = token)
 
 # read data from dropbox
-comtrade_data_2016_2020 <- drop_read_csv("shiny_app/comtrade_data_2016_2020.csv")
+comtrade_data_2016_2020 <- drop_read_csv("shiny_app/comtrade_data_2016_2020.csv", dtoken = token)
 #comtrade_data_2016_2020 <- read.csv("comtrade_data_2016_2020.csv")
 x <- comtrade_data_2016_2020 %>% 
   filter(partner %ni% "World") %>%
@@ -247,7 +247,7 @@ world$name <- toupper(world$name)
 world$name <- enc2utf8(world$name)
 world$name[world$name == "CĂ”TE D'IVOIRE"] <- "COTE D'IVOIRE"
 
-eurostat_austria_malta_2016_2019 <- drop_read_csv("shiny_app/eurostat_austria_malta_2016_2019.csv")
+eurostat_austria_malta_2016_2019 <- drop_read_csv("shiny_app/eurostat_austria_malta_2016_2019.csv", dtoken = token)
 #eurostat_austria_malta_2016_2019 <- read.csv("eurostat_austria_malta_2016_2019.csv")
 y <- eurostat_austria_malta_2016_2019
 y$commodity_code <- paste("0" ,y$commodity_code, sep = "")

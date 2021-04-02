@@ -1,7 +1,8 @@
 # https://karkoz.shinyapps.io/trade_data/
 
 # shiny app for trade data 
-# runGitHub( "trade_shiny_app", "karkoz")
+#shiny::runGitHub(repo = "trade_shiny_app",username = "karkoz",ref="main")
+
 
 # run gist runGist("c6873769798a690b4c9bba63f9320239")
 library(remotes)
@@ -132,6 +133,8 @@ corvus_pal <- function(palette = "mixed", reverse = FALSE, ...) {
 # token <- drop_auth()
 # saveRDS(token, file = "token.rds")
 token <- readRDS("token.rds")
+drop_acc(dtoken = token)
+
 # read data from dropbox
 comtrade_data_2016_2020 <- drop_read_csv("shiny_app/comtrade_data_2016_2020.csv")
 #comtrade_data_2016_2020 <- read.csv("comtrade_data_2016_2020.csv")

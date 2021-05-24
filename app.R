@@ -70,7 +70,15 @@ corvus_colors <- c(
   `green20`    = "#145229ff",
   `orange50`   = "#ff9900ff",
   `orange35`   = "#b26b00ff",
-  `orange20`   = "#663d00ff")
+  `orange20`   = "#663d00ff", 
+  `YlGnBu1` = "#09415dff",
+  `YlGnBu2` = "#1e8194ff",
+  `YlGnBu3` = "#2eb7b7ff",
+  `YlGnBu4` = "#53c6b2ff",
+  `YlGnBu5` = "#7fcdb3ff",
+  `YlGnBu6` = "#c7e9b4ff",
+  `YlGnBu7` = "#edf8b1ff",
+  `YlGnBu8` = "#ffffd9ff")
 
 #' Function to extract corvus colors as hex codes
 #'
@@ -109,7 +117,8 @@ corvus_palettes <- list(
                          "green50", "orange50", "turquoise35",
                          "gold35", "grey35", "green35",
                          "orange35", "turquoise20", "gold20",
-                         "grey20", "green20", "orange20")
+                         "grey20", "green20", "orange20"),
+  `YlGnBu` = corvus_cols("YlGnBu8", "YlGnBu7", "YlGnBu6", "YlGnBu5", "YlGnBu4", "YlGnBu3", "YlGnBu2", "YlGnBu1")
   
 )
 
@@ -136,7 +145,7 @@ token <- readRDS("token.rds")
 drop_acc(dtoken = token)
 
 # read data from dropbox
-comtrade_data_2016_2020 <- drop_read_csv("shiny_app/comtrade_data_2016_2020.csv", dtoken = token)
+comtrade_data_2016_2020 <- drop_read_csv("shiny_app/comtrade_data_2016_2019_.csv", dtoken = token)
 #comtrade_data_2016_2020 <- read.csv("comtrade_data_2016_2020.csv")
 x <- comtrade_data_2016_2020 %>% 
   filter(partner %ni% "World") %>%
@@ -176,7 +185,7 @@ x$Exporters[x$Exporters == "RUSSIAN FEDERATION"] <- "RUSSIA"
 x$Exporters[x$Exporters == "BOLIVIA, PLURINATIONAL STATE OF"] <- "BOLIVIA"
 x$Exporters[x$Exporters == "WESTERN SAHARA"] <- "W. SAHARA"
 x$Exporters[x$Exporters == "MACEDONIA, NORTH"] <- "MACEDONIA"
-x$Exporters[x$Exporters == "SAO TOME AND PRINCIPE"] <- "SAO TOMĂ‰ AND PRINCIPE"
+x$Exporters[x$Exporters == "SAO TOME AND PRINCIPE"] <- "SAO TOMÉ AND PRINCIPE"
 x$Exporters[x$Exporters == "KOREA, REPUBLIC OF"] <- "KOREA"
 x$Exporters[x$Exporters == "MACAO, CHINA"] <- "MACAO"
 x$Exporters[x$Exporters == "CHINA, MACAO SAR"] <- "MACAO"
@@ -202,7 +211,7 @@ x$Exporters[x$Exporters == "REP. OF MOLDOVA"] <- "MOLDOVA"
 x$Exporters[x$Exporters == "TFYR OF MACEDONIA"] <- "MACEDONIA"
 
 x$Exporters <- enc2utf8(x$Exporters)
-x$Exporters[x$Exporters == "CĂ”TE D'IVOIRE"] <- "COTE D'IVOIRE"
+x$Exporters[x$Exporters == "CÔTE D'IVOIRE"] <- "COTE D'IVOIRE"
 
 # remove Austria and Malta due to lack of data avaiability
 x <- x %>% filter(Importer %ni% c("AUSTRIA", "MALTA") & Year %ni% c(2015,2020) & Region != "World")
@@ -210,6 +219,8 @@ x <- x %>% filter(Importer %ni% c("AUSTRIA", "MALTA") & Year %ni% c(2015,2020) &
 x <- x %>% filter(Date > "2015-12-01" & Date < "2020-01-01")
 
 x$commodity_code <- paste("0" ,x$commodity_code, sep = "")
+x$commodity_code[x$commodity_code == "0120792"] <- "120792"
+x$commodity_code[x$commodity_code == "01801"] <- "1801"
 
 # ordered list of hs codes with names
 
@@ -231,7 +242,7 @@ codes_table <- x %>%
   arrange(commodity_code) %>%
   select(commodity_code, HS_code_fullname)
 
-codes_list <- vector(mode = "list", length = 32)
+codes_list <- vector(mode = "list", length = nrow(codes))
 
 for (i in 1:nrow(codes)) {
   name <- codes$name[i]
@@ -245,7 +256,7 @@ class(world)
 world <- world %>% select(4,18,19,25)
 world$name <- toupper(world$name)
 world$name <- enc2utf8(world$name)
-world$name[world$name == "CĂ”TE D'IVOIRE"] <- "COTE D'IVOIRE"
+world$name[world$name == "CÔTE D'IVOIRE"] <- "COTE D'IVOIRE"
 
 eurostat_austria_malta_2016_2019 <- drop_read_csv("shiny_app/eurostat_austria_malta_2016_2019.csv", dtoken = token)
 #eurostat_austria_malta_2016_2019 <- read.csv("eurostat_austria_malta_2016_2019.csv")
@@ -259,7 +270,10 @@ y <- y %>% select(Exporters, Date, Quantity, Region, Importer, Year, Month, comm
 
 x <- dplyr::bind_rows(x, y)
 
-comtrade_list <- toupper(c("Belgium", "Bulgaria", "Croatia", "Cyprus", "France", "Germany", "Greece", "Italy", "Netherlands", "Portugal", "Slovenia", "Spain"))
+comtrade_list <- toupper(c("Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", "Denmark", "Estonia",
+                           "Finland", "France", "Germany", "Greece", "Hungary", "Ireland", "Italy", "Latvia",
+                           "Lithuania", "Luxembourg", "Netherlands", "Poland", "Portugal", "Romania", "Slovakia",
+                           "Slovenia", "Spain", "Sweden", "United Kingdom"))
 eurostat_list <- toupper(c("Austria", "Malta"))
 
 js <- "
@@ -288,7 +302,6 @@ css <- "
 }"
 my_choices2 <- stringr::str_wrap(names(codes_list), width = 30)
 my_choices2 <- stringr::str_replace_all(my_choices2, "\\n", "<br>")
-
 # download text for text editor, working only when run locally
 
 download_text <- function(x) {
@@ -1153,125 +1166,13 @@ server <- function(input, output, session) {
     )})
   
   # text editor update 
-  observe({
-    
-    UpdateEditor(session,
-                 id = "textcontent1",
-                 text = download_text("1"))
-    
-  })
-  
-  observe({
-    
-    UpdateEditor(session,
-                 id = "textcontent2",
-                 text = download_text("2"))
-    
-  })
-  
-  observe({
-    
-    UpdateEditor(session,
-                 id = "textcontent3",
-                 text = download_text("3"))
-    
-  })
-  
-  observe({
-    
-    UpdateEditor(session,
-                 id = "textcontent4",
-                 text = download_text("4"))
-    
-  })
-  
-  observe({
-    
-    UpdateEditor(session,
-                 id = "textcontent5",
-                 text = download_text("5"))
-    
-  })
-  
-  observe({
-    
-    UpdateEditor(session,
-                 id = "textcontent6",
-                 text = download_text("6"))
-    
-  })
-  
-  observe({
-    
-    UpdateEditor(session,
-                 id = "textcontent7",
-                 text = download_text("7"))
-    
-  })
-  
-  observe({
-    
-    UpdateEditor(session,
-                 id = "textcontent8",
-                 text = download_text("8"))
-    
-  })
-  
-  observe({
-    
-    UpdateEditor(session,
-                 id = "textcontent9",
-                 text = download_text("9"))
-    
-  })
-  
-  observe({
-    
-    UpdateEditor(session,
-                 id = "textcontent10",
-                 text = download_text("10"))
-    
-  })
-  
-  observe({
-    
-    UpdateEditor(session,
-                 id = "textcontent11",
-                 text = download_text("11"))
-    
-  })
-  
-  observe({
-    
-    UpdateEditor(session,
-                 id = "textcontent12",
-                 text = download_text("12"))
-    
-  })
-  
-  observe({
-    
-    UpdateEditor(session,
-                 id = "textcontent13",
-                 text = download_text("13"))
-    
-  })
-  
-  observe({
-    
-    UpdateEditor(session,
-                 id = "textcontent14",
-                 text = download_text("14"))
-    
-  })
-  
-  observe({
-    
-    UpdateEditor(session,
-                 id = "textcontent15",
-                 text = download_text("15"))
-    
-  })
+  # observe({
+  # 
+  #   UpdateEditor(session,
+  #                id = "textcontent",
+  #                text = download_text("1"))
+  # 
+  # })
   # 
   top10exporters <- reactive({
     the_biggest_exporters <- x %>% 
@@ -1295,6 +1196,8 @@ server <- function(input, output, session) {
     txt <- text()
     title <- paste("Import of", txt, "\nby the seleted European countries* in 2016-2019.", sep = " ")
     importers <- paste(input$importers, collapse = ", ")
+    importers <- stringr::str_wrap(importers, width = 160)
+    importers <- stringr::str_replace_all(importers, "\\n", "<br>")
     captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     
     p <- x %>% 
@@ -1328,6 +1231,8 @@ server <- function(input, output, session) {
   top_importers <- function(){
     txt <- text()
     importers <- paste(input$importers, collapse = ", ")
+    importers <- stringr::str_wrap(importers, width = 190)
+    importers <- stringr::str_replace_all(importers, "\\n", "\n")
     captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     
     title <- paste("Quantity of", txt, "import \nby the seleted European countries* in 2016-2019.", sep = " ")
@@ -1356,7 +1261,7 @@ server <- function(input, output, session) {
     
     # ggplotly(p) %>% 
     #   layout(margin = list(l = 50, r = 50, t = 60, b = 110),
-    #          annotations = list(text = 'Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain.',
+    #          annotations = list(text = 'Data source: UN Comtrade\n* Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece, Italy, Netherlands, Portugal, Slovenia, Spain, United Kingdom.',
     #                             font =  list(size = 11),
     #                             showarrow = FALSE,
     #                             xref = 'paper', x = 1,
@@ -1374,6 +1279,8 @@ server <- function(input, output, session) {
   top_10exporters_plot <- function(){
     txt <- text()
     importers <- paste(input$importers, collapse = ", ")
+    importers <- stringr::str_wrap(importers, width = 160)
+    importers <- stringr::str_replace_all(importers, "\\n", "\n")
     captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     if (input$with_or_without4 == FALSE) {
       title <- paste("Top 10 exporters (excluding European countries) of", txt, "imported\nby the seleted European countries* in 2016-2019.", sep = " ")
@@ -1447,8 +1354,9 @@ server <- function(input, output, session) {
     }
   )
   
-  output$export_map_2016_2019 <- renderLeaflet({
-    txt <- text()
+  output$titleMap <- renderText({ paste("Annual average export for", input$codes, "-", "to selected European countries* in 2016-2019.", sep = " ") })
+  
+  dataset = reactive({
     
     exporters_2016_2019 <- x %>%
       filter(commodity_code %in% input$codes & Importer %in% input$importers) %>%
@@ -1459,37 +1367,65 @@ server <- function(input, output, session) {
     
     exporters_2016_2019_sf <- exporters_2016_2019 %>% right_join(world, by = c("Exporters" = "name"))
     exporters_2016_2019_sf <- st_as_sf(exporters_2016_2019_sf)
-    sapply(exporters_2016_2019_sf, class) 
+    st_set_crs(exporters_2016_2019_sf, 4326)
     
-    map_title <- paste("Annual average export for", txt, "\nto selected European countries* in 2016-2019.")
-    #Breaks <- classIntervals(exporters_2016_2019_sf$Quantity, n = 6, style = "pretty")
+  })
+  
+  output$export_map_2016_2019 <- renderLeaflet({
+    validate(
+      need(input$importers != "", "Be sure to select the importers.")
+    )
     
-    tm <- tm_shape(exporters_2016_2019_sf, projection="+proj=robin") +
-      tm_fill(col = "Quantity",
-              palette = corvus_pal("sqGold")(5), 
-              title = "Exported quantity [tons]", 
-              textNA = "No data", 
-              colorNA = "#bdbdbd",
-              style = "jenks") +
-      tm_borders(col = "#3d3c38", lwd = 0.6, alpha = 0.5) +
-      tm_layout(title = map_title,
-                title.position = "left",
-                title.size = 0.8, fontface = 3,
-                legend.title.size=0.8,
-                legend.text.size = 0.6,
-                earth.boundary = TRUE,
-                bg.color = "#9ecae1",
-                space.color="white",
-                attr.outside = TRUE) + 
-      tm_view(set.view = c(-8, 20, 1), view.legend.position = c("left", "bottom"))
+    exporters_2016_2019_sf <- dataset()
+    exporters_2016_2019_sf_without_na <- exporters_2016_2019_sf[!is.na(exporters_2016_2019_sf$Quantity), ]
+    Breaks <- classIntervals(exporters_2016_2019_sf_without_na$Quantity, n = 5, style = "jenks")
+    risk.bins <- Breaks$brks
+    risk.pal <- colorBin( corvus_pal("YlGnBu")(5), bins=risk.bins, na.color = "#DDDDDD")
+    p_popup <- paste0("<strong>Country: </strong>", exporters_2016_2019_sf$name_long, "</br>",
+                      "<strong>Quantity [tons]: </strong>", exporters_2016_2019_sf$Quantity)
+    leaflet(exporters_2016_2019_sf) %>%
+      setView(lng = 12, lat = 25, zoom = 1) %>%
+      addPolygons(fillColor = ~risk.pal(Quantity), # set fill color with function from above and value
+                  fillOpacity = 0.9, smoothFactor = 0.5, weight = 0.8,
+                  opacity = 0.9,
+                  color = "#a3a3a3",
+                  popup = p_popup) %>%
+      addProviderTiles(providers$CartoDB.Positron) %>%
+      addLegend("bottomleft", 
+                colors = corvus_pal("YlGnBu")(5), 
+                labels = paste0("up to ", format(Breaks$brks[-1], digits = 2)),
+                title = 'Quantity [tons]',
+                opacity = 0.9)
     
-    tmap_leaflet(tm)
+    
+    # tm_shape(dataset(), projection="+proj=robin") +
+    #   tm_fill(col = "Quantity",
+    #           palette = corvus_pal("sqGold")(5),
+    #           title = "Exported quantity [tons]",
+    #           textNA = "No data",
+    #           colorNA = "#bdbdbd",
+    #           style = "jenks") +
+    #   tm_borders(col = "#3d3c38", lwd = 0.6, alpha = 0.5) +
+    #   tm_layout(title = "Annual average export for selected product groups to selected European countries in 2016-2019.",
+    #             title.position = "left",
+    #             title.size = 0.8, fontface = 3,
+    #             legend.title.size=0.8,
+    #             legend.text.size = 0.6,
+    #             earth.boundary = TRUE,
+    #             bg.color = "#9ecae1",
+    #             space.color="white",
+    #             attr.outside = TRUE) +
+    #   tm_view(set.view = c(-8, 20, 1), view.legend.position = c("left", "bottom"))
+    
+    # tmap_leaflet(tm)
   })
   
   seasonality <- function(){
     txt <- text()
     Title <- paste("Monthly quantity of", txt, "\nimported by the selected European countries* in 2015-2019.")
     importers <- paste(input$importers, collapse = ", ")
+    importers <- stringr::str_wrap(importers, width = 190)
+    importers <- stringr::str_replace_all(importers, "\\n", "\n")
     captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     p <- x %>% 
       filter(commodity_code %in% input$codes & Importer %in% input$importers) %>%
@@ -1532,6 +1468,8 @@ server <- function(input, output, session) {
     txt <- text()
     Title <- paste("Monthly quantity of", txt, "\nimported by the selected European countries* in 2015-2019 from", input$exporters)
     importers <- paste(input$importers, collapse = ", ")
+    importers <- stringr::str_wrap(importers, width = 85)
+    importers <- stringr::str_replace_all(importers, "\\n", "\n")
     captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     p <- x %>% 
       filter(commodity_code %in% input$codes & Exporters %in% input$exporters & Importer %in% input$importers) %>%
@@ -1572,6 +1510,8 @@ server <- function(input, output, session) {
     txt <- text()
     Title <- paste("Monthly quantity of", txt, "\nimported by the selected European countries* in 2015-2019 from", input$exporters2)
     importers <- paste(input$importers, collapse = ", ")
+    importers <- stringr::str_wrap(importers, width = 85)
+    importers <- stringr::str_replace_all(importers, "\\n", "\n")
     captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     p <- x %>% 
       filter(commodity_code %in% input$codes & Exporters %in% input$exporters2 & Importer %in% input$importers) %>%
@@ -1611,6 +1551,8 @@ server <- function(input, output, session) {
   import_by_regions <- function(){
     txt <- text()
     importers <- paste(input$importers, collapse = ", ")
+    importers <- stringr::str_wrap(importers, width = 120)
+    importers <- stringr::str_replace_all(importers, "\\n", "\n")
     captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     x %>%
       filter(commodity_code %in% input$codes & Region %in% input$multipleRegions & Importer %in% input$importers) %>%
@@ -1655,6 +1597,8 @@ server <- function(input, output, session) {
     
     txt <- text()
     importers <- paste(input$importers, collapse = ", ")
+    importers <- stringr::str_wrap(importers, width = 120)
+    importers <- stringr::str_replace_all(importers, "\\n", "\n")
     captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     if (input$regions == "All") {
       
@@ -1721,6 +1665,8 @@ server <- function(input, output, session) {
   top5exp <- function(){
     txt <- text()
     importers <- paste(input$importers, collapse = ", ")
+    importers <- stringr::str_wrap(importers, width = 120)
+    importers <- stringr::str_replace_all(importers, "\\n", "\n")
     captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     if (input$with_or_without1 == FALSE) {
       
@@ -1812,6 +1758,8 @@ server <- function(input, output, session) {
   heatplot1 <- function(){
     txt <- text()
     importers <- paste(input$importers, collapse = ", ")
+    importers <- stringr::str_wrap(importers, width = 120)
+    importers <- stringr::str_replace_all(importers, "\\n", "\n")
     captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     '%ni%' <- Negate('%in%')
     
@@ -1846,7 +1794,7 @@ server <- function(input, output, session) {
       ggplot(the_biggest_exporters_by_year, aes(Year, Exporters, fill = Sum_export)) + 
         geom_tile(colour="grey95") + 
         scale_fill_gradientn(name = "Quantity [tons]", 
-                             colours = corvus_pal("sqGold")(8), 
+                             colours = corvus_pal("YlGnBu")(8), 
                              values = c(0,0.001,0.1, 0.2, 0.4, 0.7,1),
                              breaks = Breaks$brks)+
         theme_minimal() + theme_minimal() +
@@ -1895,7 +1843,7 @@ server <- function(input, output, session) {
       ggplot(the_biggest_exporters_by_year, aes(Year, Exporters, fill = Sum_export)) + 
         geom_tile(colour="grey95") + 
         scale_fill_gradientn(name = "Quantity [tons]", 
-                             colours = corvus_pal("sqGold")(8), 
+                             colours = corvus_pal("YlGnBu")(8), 
                              values = c(0,0.001,0.1, 0.2, 0.4, 0.7,1),
                              breaks = Breaks$brks)+
         theme_minimal() + theme_minimal() +
@@ -1930,6 +1878,8 @@ server <- function(input, output, session) {
   heatplot2 <- function(){
     txt <- text()
     importers <- paste(input$importers, collapse = ", ")
+    importers <- stringr::str_wrap(importers, width = 120)
+    importers <- stringr::str_replace_all(importers, "\\n", "\n")
     captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     exporter <- input$top10exporters
     top_exporter_export <- x %>%
@@ -1947,7 +1897,7 @@ server <- function(input, output, session) {
     ggplot(top_exporter_export, aes(Year, Importer, fill = Annual_export)) +
       geom_tile(colour="grey90") +
       scale_fill_gradientn(name = "Quantity [tons]",
-                           colours = corvus_pal("sqGold")(8),
+                           colours = corvus_pal("YlGnBu")(8),
                            values = c(0,0.001,0.1, 0.2, 0.4, 0.7,1),
                            breaks = Breaks$brks,
                            na.value = "grey50") +
@@ -1984,6 +1934,8 @@ server <- function(input, output, session) {
   heatplot3 <- function(){
     txt <- text()
     importers <- paste(input$importers, collapse = ", ")
+    importers <- stringr::str_wrap(importers, width = 120)
+    importers <- stringr::str_replace_all(importers, "\\n", "\n")
     captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     if (input$with_or_without3 == FALSE) {
       #excluding europe
@@ -2015,7 +1967,7 @@ server <- function(input, output, session) {
       ggplot(sum_by_exporters_importers, aes(Importer, Exporters, fill = Total_quantity)) + 
         geom_tile(colour="grey90") + 
         scale_fill_gradientn(name = "Quantity [tons]", 
-                             colours = corvus_pal("sqGold")(8), 
+                             colours = corvus_pal("YlGnBu")(8), 
                              values = c(0,0.001,0.1, 0.2, 0.4, 0.7,1),
                              breaks = Breaks$brks, 
                              na.value = "grey50")+
@@ -2066,7 +2018,7 @@ server <- function(input, output, session) {
       ggplot(sum_by_exporters_importers, aes(Importer, Exporters, fill = Total_quantity)) + 
         geom_tile(colour="grey90") + 
         scale_fill_gradientn(name = "Quantity [tons]", 
-                             colours = corvus_pal("sqGold")(8), 
+                             colours = corvus_pal("YlGnBu")(8), 
                              values = c(0,0.001,0.1, 0.2, 0.4, 0.7,1),
                              breaks = Breaks$brks, 
                              na.value = "grey50")+
@@ -2104,6 +2056,8 @@ server <- function(input, output, session) {
   
   output$compare_product <- plotly::renderPlotly({
     importers <- paste(input$importers, collapse = ", ")
+    importers <- stringr::str_wrap(importers, width = 190)
+    importers <- stringr::str_replace_all(importers, "\\n", "\n")
     captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     
     plot <- x %>%
@@ -2141,6 +2095,8 @@ server <- function(input, output, session) {
   
   output$compare_product_by_region <- plotly::renderPlotly({
     importers <- paste(input$importers, collapse = ", ")
+    importers <- stringr::str_wrap(importers, width = 160)
+    importers <- stringr::str_replace_all(importers, "\\n", "<br>")
     captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     
     sum_all <- x %>% 
@@ -2199,6 +2155,8 @@ server <- function(input, output, session) {
   
   import_by_product_codes <- function(){
     importers <- paste(input$importers, collapse = ", ")
+    importers <- stringr::str_wrap(importers, width = 120)
+    importers <- stringr::str_replace_all(importers, "\\n", "\n")
     captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     
     txt <- text()

@@ -1166,14 +1166,125 @@ server <- function(input, output, session) {
     )})
   
   # text editor update 
-  # observe({
-  # 
-  #   UpdateEditor(session,
-  #                id = "textcontent",
-  #                text = download_text("1"))
-  # 
-  # })
-  # 
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent1",
+                 text = download_text("1"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent2",
+                 text = download_text("2"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent3",
+                 text = download_text("3"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent4",
+                 text = download_text("4"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent5",
+                 text = download_text("5"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent6",
+                 text = download_text("6"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent7",
+                 text = download_text("7"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent8",
+                 text = download_text("8"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent9",
+                 text = download_text("9"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent10",
+                 text = download_text("10"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent11",
+                 text = download_text("11"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent12",
+                 text = download_text("12"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent13",
+                 text = download_text("13"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent14",
+                 text = download_text("14"))
+    
+  })
+  
+  observe({
+    
+    UpdateEditor(session,
+                 id = "textcontent15",
+                 text = download_text("15"))
+    
+  })
   top10exporters <- reactive({
     the_biggest_exporters <- x %>% 
       filter(commodity_code %in% input$codes & Region != "Europe & Central Asia" & Importer %in% input$importers) %>%
@@ -1231,7 +1342,7 @@ server <- function(input, output, session) {
   top_importers <- function(){
     txt <- text()
     importers <- paste(input$importers, collapse = ", ")
-    importers <- stringr::str_wrap(importers, width = 190)
+    importers <- stringr::str_wrap(importers, width = 180)
     importers <- stringr::str_replace_all(importers, "\\n", "\n")
     captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     

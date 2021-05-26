@@ -23,8 +23,6 @@ library(classInt)
 library("rnaturalearth")
 library("rnaturalearthdata")
 library(sf)
-library(tmap)
-library(tmaptools)
 library(leaflet)
 library(rgeos)
 library(rvest)
@@ -32,7 +30,11 @@ library(readr)
 library(zoo)
 library(ShinyEditor)
 library(rdrop2)
-
+library(RColorBrewer)
+library(mapview)
+library(maptools)
+library(htmltools)
+library(leaflegend)
 #Sys.setlocale("LC_TIME", "English")
 
 # wd <- setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
@@ -536,8 +538,10 @@ body <- dashboardBody(
     
     tabItem(tabName = "plot3",
             fluidRow(
-              box(title = "Plot", status = "primary", solidHeader = TRUE,
-                  leafletOutput("export_map_2016_2019"), width = 12
+              box(title = p(textOutput("titleMap")), downloadButton('downloadMap_export', 'Download map'), status = "primary", solidHeader = TRUE,
+                  #tmapOutput(outputId = "export_map_2016_2019"), 
+                  leafletOutput("export_map_2016_2019"),
+                  width = 10
               )
             ),
             fluidRow(  # Setup
@@ -1390,7 +1394,7 @@ server <- function(input, output, session) {
   top_10exporters_plot <- function(){
     txt <- text()
     importers <- paste(input$importers, collapse = ", ")
-    importers <- stringr::str_wrap(importers, width = 160)
+    importers <- stringr::str_wrap(importers, width = 150)
     importers <- stringr::str_replace_all(importers, "\\n", "\n")
     captions <- paste("Data source: UN Comtrade\n *", importers, sep = "")
     if (input$with_or_without4 == FALSE) {
@@ -1530,6 +1534,87 @@ server <- function(input, output, session) {
     
     # tmap_leaflet(tm)
   })
+  
+  ########### map for downloading ############ 
+  
+  downloadMap <- reactive({
+    validate(
+      need(input$importers != "", "Be sure to select the importers.")
+    )
+    
+    txt <- text()
+    txt <- paste("Annual average export for", txt, "-", "to selected European countries* in 2016-2019.", sep = " ")
+    # txt <- stringr::str_wrap(txt, width = 140)
+    # txt <- stringr::str_replace_all(txt, "\\n", "</br>")
+    
+    importers <- paste(input$importers, collapse = ", ")
+    importers <- stringr::str_wrap(importers, width = 120)
+    importers <- stringr::str_replace_all(importers, "\\n", "</br>")
+    
+    captions <- tags$div(
+      tags$h3(HTML(paste("Data source: UN Comtrade\n *", importers, sep = ""))) 
+    )
+    
+    title <- tags$div(
+      tags$h1(HTML(txt)) 
+    )  
+    exporters_2016_2019_sf <- dataset()
+    exporters_2016_2019_sf_without_na <- exporters_2016_2019_sf[!is.na(exporters_2016_2019_sf$Quantity), ]
+    Breaks <- classIntervals(exporters_2016_2019_sf_without_na$Quantity, n = 5, style = "jenks")
+    risk.bins <-as.numeric(format(Breaks$brks, digits = 2)) 
+    risk.pal <- colorBin( corvus_pal("YlGnBu")(5), bins=risk.bins, na.color = "#DDDDDD")
+    p_popup <- paste0("<strong>Country: </strong>", exporters_2016_2019_sf$name_long, "</br>",
+                      "<strong>Quantity [tons]: </strong>", exporters_2016_2019_sf$Quantity)
+    #binPal <- colorBin(corvus_pal("YlGnBu")(6), format(Breaks$brks, digits = 2))
+    
+    leaflet(exporters_2016_2019_sf) %>%
+      setView(lng = 10, lat = 30, zoom = 3) %>%
+      addPolygons(fillColor = ~risk.pal(Quantity), # set fill color with function from above and value
+                  fillOpacity = 0.9, smoothFactor = 0.5, weight = 2,
+                  opacity = 0.9,
+                  color = "#a3a3a3",
+                  popup = p_popup) %>%
+      addProviderTiles(providers$CartoDB.Positron) %>%
+      addLegendBin(
+        pal = risk.pal,
+        values = risk.bins ,
+        position = 'bottomleft',
+        title = htmltools::tags$div(tags$h1('Quantity [tons]')),
+        shape = 'rect',
+        opacity = 1,
+        fillOpacity = .9,
+        orientation = 'vertical',
+        layerId = 'vertical',
+        labelStyle = 'font-size: 30px;'
+      ) %>%
+      addControl(title, position = "topleft")  %>%
+      addControl(captions, position = "bottomright")
+    
+  })
+  
+  # 
+  # create the output file name
+  # and specify how the download button will take
+  # a screenshot - using the mapview::mapshot() function
+  # and save as a png
+  output$downloadMap_export <- downloadHandler(
+    filename = paste0( Sys.Date()
+                       , "_import_map_2016_2019"
+                       , ".png"
+    )
+    
+    , content = function(file) {
+      mapshot( x = downloadMap(),
+               file = file,
+               vwidth = 1920, 
+               vheight = 1080,
+               title="Map title"
+      )
+    } # end of content() function
+  ) # end of downloadHandler() function
+  
+  ############################################
+  
   
   seasonality <- function(){
     txt <- text()
